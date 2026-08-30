@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="RestaurantApplicationAPI/RestaurantApplicationAPI.csproj" />
+  <Project Path="RestaurantApplicationUI/RestaurantApplicationUI.csproj" Id="a77f09f4-fadc-431c-aa80-6372680ffa93" />
+</Solution>
