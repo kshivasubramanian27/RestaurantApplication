@@ -1,0 +1,60 @@
+﻿@model RestaurantApplicationUI.DTO.Exception.ExceptionInfo
+@{
+    Layout = null;
+    ViewData["Title"] = "Application Error";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Application Error</title>
+
+    <link href="~/BootstrapCSS/bootstrap.min.css" rel="stylesheet" />
+</head>
+
+<body>
+
+    <div class="container mt-5">
+
+        <div class="card shadow">
+
+            <div class="card-header bg-danger text-white">
+                <h3>
+                    An unexpected error occurred
+                </h3>
+            </div>
+
+            <div class="card-body">
+
+                <div class="mb-3">
+                    <strong>Controller:</strong>
+
+                    <span>
+                        @Model.ControllerName
+                    </span>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Stack Trace:</strong>
+
+                    <pre class="bg-light p-3 mt-2"
+                         style="white-space: pre-wrap;">@Model.StackTrace</pre>
+                </div>
+
+                <a asp-controller="Dashboard"
+                   asp-action="Index"
+                   class="btn btn-primary">
+                    Back to Dashboard
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

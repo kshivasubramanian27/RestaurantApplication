@@ -4,6 +4,6 @@ namespace RestaurantApplicationAPI.ServiceContracts
 {
     public interface IJWTTokenService
     {
-        string GenerateToken(ApplicationUser user, IEnumerable<string> roles);
+        Task<string> GenerateToken(ApplicationUser user, IEnumerable<string> roles);
     }
 }

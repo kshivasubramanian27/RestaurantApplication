@@ -1,6 +1,7 @@
 using RestaurantApplicationUI.ServiceContracts;
 using RestaurantApplicationUI.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using RestaurantApplicationUI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,9 +22,11 @@ builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
 var app = builder.Build();
 
+app.UseExceptionHandler("/Error");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseMiddleware<ControllerInfoMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

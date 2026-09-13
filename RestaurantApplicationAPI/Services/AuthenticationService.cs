@@ -32,7 +32,7 @@ namespace RestaurantApplicationAPI.Services
 
             var roles = await _userRepository.GetRoleByUsernameAsync(user);
 
-            var accessToken = _jwtTokenService.GenerateToken(user, roles);
+            var accessToken = await _jwtTokenService.GenerateToken(user, roles);
 
             return new LoginResponseDTO
                 {

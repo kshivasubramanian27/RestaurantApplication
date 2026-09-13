@@ -4,6 +4,7 @@ using authService = RestaurantApplicationUI.ServiceContracts;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace RestaurantApplicationUI.Controllers
 {
@@ -38,9 +39,17 @@ namespace RestaurantApplicationUI.Controllers
                 return View(request);
             }
 
-            var claims = new List<Claim> { new Claim(ClaimTypes.Name, request.Username) };
+            var handler = new JwtSecurityTokenHandler();
 
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var jwtToken = handler.ReadJwtToken(loginResponse.AccessToken);
+
+            var claims = jwtToken.Claims.ToList();
+
+            var identity = new ClaimsIdentity(
+                claims,
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                ClaimTypes.Name,
+                ClaimTypes.Role);
 
             var principal = new ClaimsPrincipal(identity);
 

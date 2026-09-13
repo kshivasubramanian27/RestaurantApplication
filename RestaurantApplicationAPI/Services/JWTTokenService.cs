@@ -2,6 +2,7 @@
 using Microsoft.IdentityModel.Tokens;
 using RestaurantApplicationAPI.Configuration;
 using RestaurantApplicationAPI.Models;
+using RestaurantApplicationAPI.RepositoryContracts;
 using RestaurantApplicationAPI.ServiceContracts;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -13,13 +14,18 @@ namespace RestaurantApplicationAPI.Services
     {
         private readonly JWTSettings _jwtSettings;
 
-        public JWTTokenService(IOptions<JWTSettings> jwtSettings)
+        private readonly IPermissionRepository _permissionRepository;
+
+        public JWTTokenService(IOptions<JWTSettings> jwtSettings, IPermissionRepository permissionRepository)
         {
             _jwtSettings = jwtSettings.Value;
+            _permissionRepository = permissionRepository;
         }
 
-        public string GenerateToken(ApplicationUser user, IEnumerable<string> roles)
+        public async Task<string> GenerateToken(ApplicationUser user, IEnumerable<string> roles)
         {
+            var permissions = await _permissionRepository.GetPermissionsForRolesAsync(roles);
+
             var claims = new List<Claim>
             {
                 new Claim(
@@ -28,13 +34,28 @@ namespace RestaurantApplicationAPI.Services
 
                 new Claim(
                     ClaimTypes.Name,
-                    user.UserName ?? string.Empty)
+                    user.UserName ?? string.Empty),
+
+                new Claim(
+                    ClaimTypes.GivenName,
+                    user.FirstName ?? string.Empty),
+
+                new Claim(
+                    ClaimTypes.Surname,
+                    user.LastName ?? string.Empty)
             };
 
             foreach (var role in roles)
             {
                 claims.Add(
                     new Claim(ClaimTypes.Role, role));
+            }
+
+            foreach (var permission in permissions)
+            {
+                claims.Add(new Claim(
+                    "permission",
+                    permission));
             }
 
             var key = new SymmetricSecurityKey(
