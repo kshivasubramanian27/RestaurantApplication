@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-using RestaurantApplicationAPI.Models;
+﻿using RestaurantApplicationAPI.Models;
 
 namespace RestaurantApplicationAPI.RepositoryContracts
 {
@@ -10,5 +9,7 @@ namespace RestaurantApplicationAPI.RepositoryContracts
         Task<bool> CheckPasswordAsync(ApplicationUser user, string password);
 
         public Task<IList<string>> GetRoleByUsernameAsync(ApplicationUser user);
+
+        public Task<IList<ApplicationUser>> GetAllUsersAsync();
     }
 }

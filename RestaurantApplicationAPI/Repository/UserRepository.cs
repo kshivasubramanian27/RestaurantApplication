@@ -1,5 +1,6 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using RestaurantApplicationAPI.DBContext;
 using RestaurantApplicationAPI.Models;
 using RestaurantApplicationAPI.RepositoryContracts;
 
@@ -27,6 +28,11 @@ namespace RestaurantApplicationAPI.Repository
         public Task<IList<string>> GetRoleByUsernameAsync(ApplicationUser user)
         {
             return _userManager.GetRolesAsync(user);
+        }
+
+        public async Task<IList<ApplicationUser>> GetAllUsersAsync()
+        {
+            return await _userManager.Users.AsNoTracking().ToListAsync();
         }
     }
 }

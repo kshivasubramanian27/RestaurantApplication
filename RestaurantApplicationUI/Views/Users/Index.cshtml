@@ -1,4 +1,6 @@
-﻿@{
+﻿@model IList<RestaurantApplicationUI.DTO.Users.UsersDTO>
+@using RestaurantApplicationUI.Extensions;
+@{
     ViewData["Title"] = "Users";
     ViewBag.ActiveMenuLink = "Users";
 }
@@ -23,4 +25,128 @@
 
         </ol>
     </nav>
+</div>
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"></h2>
+        </div>
+
+        @if (User.HasPermission("User.Create"))
+        {
+            <a href="#" class="btn btn-primary">
+                <i class="bi bi-person-plus me-2"></i>
+                Add User
+            </a>
+        }
+    </div>
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-people fs-1 text-muted"></i>
+
+                <h5 class="mt-3">No users found</h5>
+
+                <p class="text-muted mb-0">
+                    There are currently no users to display.
+                </p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th>Username</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Address</th>
+                                <th>Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var user in Model)
+                            {
+                                var loggedInUserIsSuperAdmin = User.IsInRole("Super Admin");
+                                var rowUserIsSuperAdmin = user.Roles.Contains("Super Admin");
+
+                                var canDelete = User.HasPermission("User.Delete") && !(loggedInUserIsSuperAdmin && rowUserIsSuperAdmin);
+
+                                <tr>
+                                    <td>
+                                        <strong>@user.Username</strong>
+                                    </td>
+
+                                    <td>
+                                        @user.FirstName @user.LastName
+                                    </td>
+
+                                    <td>
+                                        @user.Email
+                                    </td>
+
+                                    <td>
+                                        @user.PhoneNumber
+                                    </td>
+
+                                    <td>
+                                        @user.Address
+                                    </td>
+
+                                    <td>
+                                        @if (user.IsActive)
+                                        {
+                                            <span class="badge bg-success">
+                                                Active
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                Inactive
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td class="text-end">
+                                        @if (User.HasPermission("User.Update"))
+                                        {
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary me-1">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                        }
+
+                                        @if (canDelete)
+                                        {
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    }
+
 </div>

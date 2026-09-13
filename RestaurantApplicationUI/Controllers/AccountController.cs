@@ -45,6 +45,8 @@ namespace RestaurantApplicationUI.Controllers
 
             var claims = jwtToken.Claims.ToList();
 
+            claims.Add(new Claim("access_token", loginResponse.AccessToken));
+
             var identity = new ClaimsIdentity(
                 claims,
                 CookieAuthenticationDefaults.AuthenticationScheme,

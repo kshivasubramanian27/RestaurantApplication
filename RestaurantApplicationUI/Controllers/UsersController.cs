@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RestaurantApplicationUI.ServiceContracts;
 
 namespace RestaurantApplicationUI.Controllers
 {
@@ -7,10 +8,26 @@ namespace RestaurantApplicationUI.Controllers
     [Route("[controller]")]
     public class UsersController : Controller
     {
-        [HttpGet("")]
-        public IActionResult Index()
+        private readonly IUsersService _usersService;
+
+        public UsersController(IUsersService usersService)
         {
-            return View();
+            _usersService = usersService;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            var accessToken = User.FindFirst("access_token")?.Value;
+
+            if (string.IsNullOrWhiteSpace(accessToken))
+                return RedirectToAction("Login", "Account");
+
+            var users = await _usersService.GetAllUsersAsync(accessToken);
+
+            ViewBag.ActiveMenu = "Users";
+
+            return View(users);
         }
     }
 }
