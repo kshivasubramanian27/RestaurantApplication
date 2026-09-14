@@ -1,5 +1,6 @@
 ﻿using RestaurantApplicationUI.DTO.Authentication;
 using RestaurantApplicationUI.ServiceContracts;
+using System.Net.Http.Headers;
 
 namespace RestaurantApplicationUI.Services
 {
@@ -20,6 +21,15 @@ namespace RestaurantApplicationUI.Services
                 return null;
 
             return await response.Content.ReadFromJsonAsync<LoginResponseDTO>();
+        }
+
+        public async Task<bool> LogoutAsync(string accessToken)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.PostAsync("api/Authentication/logout", content: null);
+
+            return response.IsSuccessStatusCode;
         }
     }
 }

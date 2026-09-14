@@ -168,10 +168,82 @@
                     <strong>@User.Identity?.Name</strong>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-                    <li><a class="dropdown-item" href="#">Profile</a></li>
-                    <li><hr class="dropdown-divider" /></li>
-                    <li><a class="dropdown-item" href="#">Sign out</a></li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            Profile
+                        </a>
+                    </li>
+
+                    <li>
+                        <hr class="dropdown-divider" />
+                    </li>
+
+                    <li>
+                        <button type="button"
+                                class="dropdown-item"
+                                data-bs-toggle="modal"
+                                data-bs-target="#logoutModal">
+                            Log out
+                        </button>
+                    </li>
                 </ul>
+
+                <div class="modal fade"
+                     id="logoutModal"
+                     tabindex="-1"
+                     aria-labelledby="logoutModalLabel"
+                     aria-hidden="true">
+
+                    <div class="modal-dialog modal-dialog-centered">
+
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="logoutModalLabel">
+                                    Confirm Logout
+                                </h5>
+
+                                <button type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"
+                                        aria-label="Close">
+                                </button>
+                            </div>
+
+                            <div class="modal-body">
+                                Are you sure you want to logout?
+                            </div>
+
+                            <div class="modal-footer">
+
+                                <button type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal">
+                                    Cancel
+                                </button>
+
+                                <form asp-controller="Account"
+                                      asp-action="Logout"
+                                      method="post"
+                                      class="d-inline">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <button type="submit"
+                                            class="btn btn-danger">
+                                        Logout
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
             </div>
         </div>
         <div class="b-example-divider b-example-vr"></div>

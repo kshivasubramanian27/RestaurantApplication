@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using RestaurantApplicationUI.DTO.Authentication;
-using authService = RestaurantApplicationUI.ServiceContracts;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using RestaurantApplicationUI.DTO.Authentication;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using authService = RestaurantApplicationUI.ServiceContracts;
 
 namespace RestaurantApplicationUI.Controllers
 {
@@ -18,6 +19,7 @@ namespace RestaurantApplicationUI.Controllers
             _authenticationService = authenticationService;
         }
 
+        [AllowAnonymous]
         [HttpGet("Login")]
         public IActionResult Login()
         {
@@ -58,6 +60,20 @@ namespace RestaurantApplicationUI.Controllers
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
             return RedirectToAction("Index", "Dashboard");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            var accessToken = User.FindFirst("access_token")?.Value;
+
+            if (!string.IsNullOrWhiteSpace(accessToken))
+                await _authenticationService.LogoutAsync(accessToken);
+
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            return RedirectToAction(nameof(Login));
         }
     }
 }

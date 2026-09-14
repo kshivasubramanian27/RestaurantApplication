@@ -27,5 +27,15 @@ namespace RestaurantApplicationAPI.Controllers
 
             return Ok(response);
         }
+
+        [Authorize]
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            return Ok(new
+            {
+                message = "Logout completed on the client."
+            });
+        }
     }
 }
