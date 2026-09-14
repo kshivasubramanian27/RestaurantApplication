@@ -36,7 +36,7 @@
 
         @if (User.HasPermission("User.Create"))
         {
-            <a href="#" class="btn btn-primary">
+            <a asp-controller="Users" asp-action="Add" class="btn btn-primary">
                 <i class="bi bi-person-plus me-2"></i>
                 Add User
             </a>
@@ -80,10 +80,18 @@
                         <tbody>
                             @foreach (var user in Model)
                             {
+                                var loggedInUsername = User.Identity?.Name;
+
                                 var loggedInUserIsSuperAdmin = User.IsInRole("Super Admin");
                                 var rowUserIsSuperAdmin = user.Roles.Contains("Super Admin");
 
-                                var canDelete = User.HasPermission("User.Delete") && !(loggedInUserIsSuperAdmin && rowUserIsSuperAdmin);
+                                var isCurrentUser =
+                                    string.Equals(user.Username, loggedInUsername, StringComparison.OrdinalIgnoreCase);
+
+                                var canDelete =
+                                    User.HasPermission("User.Delete") &&
+                                    !isCurrentUser &&
+                                    !(rowUserIsSuperAdmin && !loggedInUserIsSuperAdmin);
 
                                 <tr>
                                     <td>

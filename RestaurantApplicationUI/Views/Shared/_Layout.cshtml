@@ -105,7 +105,7 @@
 </head>
 <body>
 
-    <main class="d-flex flex-nowrap">
+    <main class="d-flex flex-nowrap vh-100">
         <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark"
              style="width: 280px">
             <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
@@ -176,7 +176,7 @@
         </div>
         <div class="b-example-divider b-example-vr"></div>
 
-        <div class="flex-grow-1 p-4">
+        <div class="flex-grow-1 p-4 overflow-auto">
             @RenderBody()
         </div>
 
@@ -186,5 +186,6 @@
     <script src="~/BootstrapJS/sidebars.js" class="astro-vvvwv3sm"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

@@ -34,5 +34,24 @@ namespace RestaurantApplicationAPI.Repository
         {
             return await _userManager.Users.AsNoTracking().ToListAsync();
         }
+
+        public async Task<IdentityResult> CreateUserAsync(ApplicationUser user, string password, string roleName)
+        {
+            var createResult = await _userManager.CreateAsync(user, password);
+
+            if (!createResult.Succeeded)
+                return createResult;
+
+            var roleResult = await _userManager.AddToRoleAsync(user, roleName);
+
+            if (!roleResult.Succeeded)
+            {
+                await _userManager.DeleteAsync(user);
+
+                return roleResult;
+            }
+
+            return IdentityResult.Success;
+        }
     }
 }

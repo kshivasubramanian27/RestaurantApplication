@@ -1,4 +1,6 @@
-﻿using RestaurantApplicationUI.DTO.Users;
+﻿using RestaurantApplicationUI.DTO.Common;
+using RestaurantApplicationUI.DTO.Roles;
+using RestaurantApplicationUI.DTO.Users;
 using RestaurantApplicationUI.ServiceContracts;
 using System.Net.Http.Headers;
 
@@ -24,6 +26,33 @@ namespace RestaurantApplicationUI.Services
             var users = await response.Content.ReadFromJsonAsync<IList<UsersDTO>>();
 
             return users;
+        }
+
+        public async Task<IList<UserRolesDTO>> GetAllRolesAsync(string accessToken)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.GetAsync("api/UserRoles");
+
+            response.EnsureSuccessStatusCode();
+
+            var roles = await response.Content.ReadFromJsonAsync<IList<UserRolesDTO>>();
+
+            return roles ?? new List<UserRolesDTO>();
+        }
+
+        public async Task<(bool success, string? error)> CreateUserAsync(CreateUserRequestDTO request, string accessToken)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.PostAsJsonAsync("api/Users", request);
+
+            if (response.IsSuccessStatusCode)
+                return (true, null);
+
+            var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
+
+            return (false, error?.Message ?? "Unable to create the user.");
         }
     }
 }

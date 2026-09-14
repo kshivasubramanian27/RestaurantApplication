@@ -1,0 +1,315 @@
+﻿@model RestaurantApplicationUI.DTO.Users.CreateUserRequestDTO
+@using System.Security.Claims
+@using RestaurantApplicationUI.DTO.Roles
+
+@{
+    ViewData["Title"] = "Add User";
+    ViewBag.ActiveMenuLink = "Users";
+
+    var roles = ViewBag.Roles as IList<UserRolesDTO> ?? new List<UserRolesDTO>();
+    var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+}
+
+<link href="~/BootstrapCSS/breadcrumbs.css" rel="stylesheet" />
+
+<div class="container my-2">
+
+     
+    <nav aria-label="breadcrumb">
+
+        <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary border rounded-3">
+
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none"
+                   href="/Dashboard">
+                    <i class="bi bi-house"></i>
+                </a>
+            </li>
+
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none"
+                   asp-controller="Users"
+                   asp-action="Index">
+                    Users
+                </a>
+            </li>
+
+            <li class="breadcrumb-item active"
+                aria-current="page">
+                Add User
+            </li>
+
+        </ol>
+
+    </nav>
+     
+
+</div>
+
+<div class="container-fluid">
+
+     
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="mb-1">Add User</h2>
+
+            <p class="text-muted mb-0">
+                Create a new user account and assign a role.
+            </p>
+        </div>
+
+    </div>
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <form asp-controller="Users"
+                  asp-action="Add"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-4">
+                </div>
+
+                <h5 class="mb-3">
+                    <i class="bi bi-person me-2"></i>
+                    Basic Information
+                </h5>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="Username"
+                               class="form-label">
+                            Username
+                        </label>
+
+                        <input asp-for="Username"
+                               class="form-control"
+                               autocomplete="username" required />
+
+                        <span asp-validation-for="Username"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="Email"
+                               class="form-label">
+                            Email
+                        </label>
+
+                        <input asp-for="Email"
+                               type="email"
+                               class="form-control"
+                               autocomplete="email" required/>
+
+                        <span asp-validation-for="Email"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="FirstName"
+                               class="form-label">
+                            First Name
+                        </label>
+
+                        <input asp-for="FirstName"
+                               class="form-control" required />
+
+                        <span asp-validation-for="FirstName"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="LastName"
+                               class="form-label">
+                            Last Name
+                        </label>
+
+                        <input asp-for="LastName"
+                               class="form-control" />
+
+                        <span asp-validation-for="LastName"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="PhoneNumber"
+                               class="form-label">
+                            Phone Number
+                        </label>
+
+                        <input asp-for="PhoneNumber"
+                               class="form-control" />
+
+                        <span asp-validation-for="PhoneNumber"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="RoleName"
+                               class="form-label">
+                            Role
+                        </label>
+
+                        <select asp-for="RoleName"
+                                class="form-select" required>
+
+                            <option value="">
+                                -- Select Role --
+                            </option>
+
+                            @foreach (var role in roles)
+                            {
+                                <option value="@role.RoleName">
+                                    @role.RoleName
+                                </option>
+                            }
+
+                        </select>
+
+                        <span asp-validation-for="RoleName"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <h5 class="mb-3 mt-3">
+                    <i class="bi bi-geo-alt me-2"></i>
+                    Address
+                </h5>
+
+                <div class="mb-3">
+
+                    <label asp-for="Address"
+                           class="form-label">
+                        Address
+                    </label>
+
+                    <textarea asp-for="Address"
+                              class="form-control"
+                              rows="3"></textarea>
+
+                    <span asp-validation-for="Address"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <h5 class="mb-3 mt-4">
+                    <i class="bi bi-shield-lock me-2"></i>
+                    Account Security
+                </h5>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="Password"
+                               class="form-label">
+                            Password
+                        </label>
+
+                        <input asp-for="Password"
+                               type="password"
+                               class="form-control"
+                               autocomplete="new-password" />
+
+                        <span asp-validation-for="Password"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="ConfirmPassword"
+                               class="form-label">
+                            Confirm Password
+                        </label>
+
+                        <input asp-for="ConfirmPassword"
+                               type="password"
+                               class="form-control"
+                               autocomplete="new-password" />
+
+                        <span asp-validation-for="ConfirmPassword"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="form-check mb-4 mt-2">
+
+                    <input asp-for="IsActive"
+                           class="form-check-input" />
+
+                    <label asp-for="IsActive"
+                           class="form-check-label">
+                        Active User
+                    </label>
+
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+
+                    <a asp-controller="Users"
+                       asp-action="Index"
+                       class="btn btn-secondary">
+
+                        <i class="bi bi-x-circle me-1"></i>
+                        Cancel
+
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-primary">
+
+                        <i class="bi bi-person-plus me-1"></i>
+                        Create User
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+     
+
+</div>

@@ -1,4 +1,5 @@
-﻿using RestaurantApplicationAPI.Models;
+﻿using Microsoft.AspNetCore.Identity;
+using RestaurantApplicationAPI.Models;
 
 namespace RestaurantApplicationAPI.RepositoryContracts
 {
@@ -11,5 +12,7 @@ namespace RestaurantApplicationAPI.RepositoryContracts
         public Task<IList<string>> GetRoleByUsernameAsync(ApplicationUser user);
 
         public Task<IList<ApplicationUser>> GetAllUsersAsync();
+
+        public Task<IdentityResult> CreateUserAsync(ApplicationUser user, string password, string roleName);
     }
 }
