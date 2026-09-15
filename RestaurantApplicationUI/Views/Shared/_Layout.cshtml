@@ -1,4 +1,5 @@
 ﻿@using System.Security.Claims
+@using RestaurantApplicationUI.Extensions
 
 @{
     var firstName = User.FindFirst(ClaimTypes.GivenName)?.Value;
@@ -141,12 +142,16 @@
                         Menu
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="/Users" class="nav-link @(activeMenu == "Users" ? "active" : "text-white")">
-                        <i class="bi bi-people" width="16" height="16" style="margin-right: 8px;"></i>
-                        Users
-                    </a>
-                </li>
+                @if (User.HasPermission("User.Update"))
+                {
+                    <li class="nav-item">
+                        <a href="/Users" class="nav-link @(activeMenu == "Users" ? "active" : "text-white")">
+                            <i class="bi bi-people" width="16" height="16" style="margin-right: 8px;"></i>
+                            Users
+                        </a>
+                    </li>
+                }
+                
                 <li class="nav-item">
                     <a href="#" class="nav-link text-white">
                         <i class="bi bi-gear" width="16" height="16" style="margin-right: 8px;"></i>

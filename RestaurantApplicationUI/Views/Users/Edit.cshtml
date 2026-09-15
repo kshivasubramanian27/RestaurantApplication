@@ -1,12 +1,18 @@
 ﻿@model RestaurantApplicationUI.DTO.Users.UsersDTO
 @using System.Security.Claims
 @using RestaurantApplicationUI.DTO.Roles
+@using RestaurantApplicationUI.Utilities
 @{
     ViewData["Title"] = "Edit User";
     ViewBag.ActiveMenuLink = "Users";
 
     var roles = ViewBag.Roles as IList<UserRolesDTO> ?? new List<UserRolesDTO>();
     var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+    var IsEditingOwnAccount = string.Equals(User.Identity?.Name, Model.Username, StringComparison.OrdinalIgnoreCase);
+
+    var roleLevels = RoleHierarchy.RoleHierarchyDict;
+    var currentUserLevel = roleLevels.TryGetValue(currentUserRole, out var level) ? level : 1;
+    var editingUserRole = Model.Roles?.FirstOrDefault() ?? string.Empty;
 }
 
 <link href="~/BootstrapCSS/breadcrumbs.css" rel="stylesheet" />
@@ -51,7 +57,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
-            <h2 class="mb-1">Edit User: @User.FindFirst(ClaimTypes.GivenName)?.Value @User.FindFirst(ClaimTypes.Surname)?.Value</h2>
+            <h2 class="mb-1">Edit User: @Model.FirstName @Model.LastName</h2>
         </div>
 
     </div>
@@ -170,30 +176,56 @@
 
                     <div class="col-md-6 mb-3">
 
-                        <label asp-for="Roles"
+                        <label for="RoleName"
                                class="form-label">
                             Role
                         </label>
 
-                        <select asp-for="Roles"
-                                class="form-select" required>
-
-                            <option value="">
-                                -- Select Role --
-                            </option>
+                        <select id="RoleName"
+                                name="RoleName"
+                                class="form-select"
+                                disabled="@IsEditingOwnAccount">
 
                             @foreach (var role in roles)
                             {
-                                <option value="@role.RoleName">
+                                var roleLevel = roleLevels.TryGetValue(
+                                    role.RoleName,
+                                    out var level)
+                                    ? level
+                                    : 0;
+
+                                var isHigherThanCurrentUser =
+                                    roleLevel > currentUserLevel;
+
+                                var isCurrentEditingUserRole =
+                                    string.Equals(
+                                        role.RoleName,
+                                        editingUserRole,
+                                        StringComparison.OrdinalIgnoreCase);
+
+                                <option value="@role.RoleName"
+                                        selected="@isCurrentEditingUserRole"
+                                        disabled="@isHigherThanCurrentUser">
+
                                     @role.RoleName
+
                                 </option>
                             }
 
                         </select>
 
-                        <span asp-validation-for="Roles"
-                              class="text-danger">
-                        </span>
+                        @if (IsEditingOwnAccount)
+                        {
+                            <div class="form-text text-warning">
+                                You cannot change your own role.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-text">
+                                You cannot assign a role higher than your own.
+                            </div>
+                        }
 
                     </div>
 

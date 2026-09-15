@@ -1,8 +1,14 @@
 ﻿@model IList<RestaurantApplicationUI.DTO.Users.UsersDTO>
+@using System.Security.Claims
 @using RestaurantApplicationUI.Extensions;
+@using RestaurantApplicationUI.Utilities
 @{
     ViewData["Title"] = "Users";
     ViewBag.ActiveMenuLink = "Users";
+
+    var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+    var roleLevels = RoleHierarchy.RoleHierarchyDict;
+    var currentUserLevel = roleLevels.TryGetValue(currentUserRole, out var level) ? level : 1;
 }
 
 <link href="~/BootstrapCSS/breadcrumbs.css" rel="stylesheet" />
@@ -82,16 +88,19 @@
                             {
                                 var loggedInUsername = User.Identity?.Name;
 
+                                var isCurrentUser = string.Equals(user.Username, loggedInUsername, StringComparison.OrdinalIgnoreCase);
+
+                                var targetUserRole = user.Roles?.FirstOrDefault();
+
+                                var targetUserLevel = roleLevels.TryGetValue(targetUserRole, out var targetLevel) ? targetLevel : 0;
+
+                                var canEdit = User.HasPermission("User.Update") && targetUserLevel <= currentUserLevel;
+
                                 var loggedInUserIsSuperAdmin = User.IsInRole("Super Admin");
+
                                 var rowUserIsSuperAdmin = user.Roles.Contains("Super Admin");
 
-                                var isCurrentUser =
-                                    string.Equals(user.Username, loggedInUsername, StringComparison.OrdinalIgnoreCase);
-
-                                var canDelete =
-                                    User.HasPermission("User.Delete") &&
-                                    !isCurrentUser &&
-                                    !(rowUserIsSuperAdmin && !loggedInUserIsSuperAdmin);
+                                var canDelete = User.HasPermission("User.Delete") && !isCurrentUser && !(rowUserIsSuperAdmin && !loggedInUserIsSuperAdmin);
 
                                 <tr>
                                     <td>
@@ -130,7 +139,7 @@
                                     </td>
 
                                     <td class="text-end">
-                                        @if (User.HasPermission("User.Update"))
+                                        @if (canEdit)
                                         {
                                             <a asp-controller="Users"
                                                asp-action="Edit"
