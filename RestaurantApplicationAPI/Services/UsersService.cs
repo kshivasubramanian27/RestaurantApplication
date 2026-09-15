@@ -27,6 +27,7 @@ namespace RestaurantApplicationAPI.Services
 
                 usersDTO.Add(new UsersDTO
                 {
+                    Id = user.Id ?? string.Empty,
                     Username = user.UserName ?? string.Empty,
                     FirstName = user.FirstName ?? string.Empty,
                     LastName = user.LastName ?? string.Empty,
@@ -86,6 +87,26 @@ namespace RestaurantApplicationAPI.Services
             }
 
             return (true, string.Empty);
+        }
+
+        public async Task<UsersDTO> GetUserByIdAsync(string userId)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId);
+
+            var userRole = await _userRepository.GetRoleByUsernameAsync(user);
+
+            return new UsersDTO
+            {
+                Id = user.Id ?? string.Empty,
+                Username = user.UserName ?? string.Empty,
+                FirstName = user.FirstName ?? string.Empty,
+                LastName = user.LastName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
+                PhoneNumber = user.PhoneNumber ?? string.Empty,
+                Address = user.Address ?? string.Empty,
+                IsActive = user.IsActive,
+                Roles = userRole
+            };
         }
     }
 }

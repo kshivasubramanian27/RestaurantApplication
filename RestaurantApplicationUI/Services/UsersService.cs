@@ -54,5 +54,18 @@ namespace RestaurantApplicationUI.Services
 
             return (false, error?.Message ?? "Unable to create the user.");
         }
+
+        public async Task<UsersDTO> GetUserByIdAsync(string accessToken, string userId)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.GetAsync($"api/Users/{userId}");
+
+            response.EnsureSuccessStatusCode();
+
+            var user = await response.Content.ReadFromJsonAsync<UsersDTO>();
+
+            return user;
+        }
     }
 }

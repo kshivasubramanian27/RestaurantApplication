@@ -48,5 +48,16 @@ namespace RestaurantApplicationAPI.Controllers
                 message = "User created successfully."
             });
         }
+
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> EditUser(string userId)
+        {
+            if (!User.HasPermission("User.Update"))
+                return Forbid();
+
+            var result = await _usersService.GetUserByIdAsync(userId);
+
+            return Ok(result);
+        }
     }
 }

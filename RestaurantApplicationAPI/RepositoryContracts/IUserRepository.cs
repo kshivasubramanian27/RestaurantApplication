@@ -14,5 +14,7 @@ namespace RestaurantApplicationAPI.RepositoryContracts
         public Task<IList<ApplicationUser>> GetAllUsersAsync();
 
         public Task<IdentityResult> CreateUserAsync(ApplicationUser user, string password, string roleName);
+
+        public Task<ApplicationUser> GetUserByIdAsync(string userId);
     }
 }

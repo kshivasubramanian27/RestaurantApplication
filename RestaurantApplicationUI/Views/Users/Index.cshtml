@@ -132,10 +132,12 @@
                                     <td class="text-end">
                                         @if (User.HasPermission("User.Update"))
                                         {
-                                            <button type="button"
-                                                    class="btn btn-sm btn-outline-primary me-1">
+                                            <a asp-controller="Users"
+                                               asp-action="Edit"
+                                               asp-route-id="@user.Id"
+                                               class="btn btn-sm btn-outline-primary me-1">
                                                 <i class="bi bi-pencil"></i>
-                                            </button>
+                                            </a>
                                         }
 
                                         @if (canDelete)

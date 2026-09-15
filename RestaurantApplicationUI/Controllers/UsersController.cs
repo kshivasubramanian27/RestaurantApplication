@@ -79,6 +79,23 @@ namespace RestaurantApplicationUI.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpGet("Edit/{id}")]
+        public async Task<IActionResult> Edit(string id)
+        {
+            var accessToken = User.FindFirst("access_token")?.Value;
+
+            if (string.IsNullOrWhiteSpace(accessToken))
+                return RedirectToAction("Login", "Account");
+
+            var user = await _usersService.GetUserByIdAsync(accessToken, id);
+
+            var roles = await _usersService.GetAllRolesAsync(accessToken);
+
+            ViewBag.Roles = roles;
+
+            return View(user);
+        }
+
         private async Task LoadRoles(CreateUserRequestDTO request)
         {
             var accessToken = User.FindFirst("access_token")?.Value;

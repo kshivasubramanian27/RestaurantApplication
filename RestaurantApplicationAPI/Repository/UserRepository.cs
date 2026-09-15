@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using RestaurantApplicationAPI.DBContext;
 using RestaurantApplicationAPI.Models;
 using RestaurantApplicationAPI.RepositoryContracts;
 
@@ -52,6 +51,11 @@ namespace RestaurantApplicationAPI.Repository
             }
 
             return IdentityResult.Success;
+        }
+
+        public Task<ApplicationUser> GetUserByIdAsync(string userId)
+        {
+            return _userManager.FindByIdAsync(userId);
         }
     }
 }

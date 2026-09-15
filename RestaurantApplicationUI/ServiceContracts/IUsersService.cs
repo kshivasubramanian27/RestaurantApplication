@@ -10,5 +10,7 @@ namespace RestaurantApplicationUI.ServiceContracts
         Task<IList<UserRolesDTO>> GetAllRolesAsync(string accessToken);
 
         Task<(bool success, string? error)> CreateUserAsync(CreateUserRequestDTO request, string accessToken);
+
+        Task<UsersDTO> GetUserByIdAsync(string accessToken, string userId);
     }
 }
