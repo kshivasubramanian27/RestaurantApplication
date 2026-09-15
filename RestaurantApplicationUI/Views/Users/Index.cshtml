@@ -79,6 +79,7 @@
                                 <th>Phone</th>
                                 <th>Address</th>
                                 <th>Status</th>
+                                <th>Role</th>
                                 <th class="text-end">Actions</th>
                             </tr>
                         </thead>
@@ -136,6 +137,10 @@
                                                 Inactive
                                             </span>
                                         }
+                                    </td>
+
+                                    <td>
+                                        @user.Roles[0]
                                     </td>
 
                                     <td class="text-end">

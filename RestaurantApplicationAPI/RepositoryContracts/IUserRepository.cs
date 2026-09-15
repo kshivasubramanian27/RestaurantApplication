@@ -5,9 +5,9 @@ namespace RestaurantApplicationAPI.RepositoryContracts
 {
     public interface IUserRepository
     {
-        Task<ApplicationUser>? GetUserByUsernameAsync(string username);
+        public Task<ApplicationUser?> GetUserByUsernameAsync(string username);
 
-        Task<bool> CheckPasswordAsync(ApplicationUser user, string password);
+        public Task<bool> CheckPasswordAsync(ApplicationUser user, string password);
 
         public Task<IList<string>> GetRoleByUsernameAsync(ApplicationUser user);
 
@@ -15,6 +15,12 @@ namespace RestaurantApplicationAPI.RepositoryContracts
 
         public Task<IdentityResult> CreateUserAsync(ApplicationUser user, string password, string roleName);
 
-        public Task<ApplicationUser> GetUserByIdAsync(string userId);
+        public Task<ApplicationUser?> GetUserByIdAsync(string userId);
+
+        public Task<IdentityResult> UpdateUserAsync(ApplicationUser user);
+
+        public Task<IdentityResult> RemoveUserFromRoleAsync(ApplicationUser user, string roleName);
+
+        public Task<IdentityResult> AddUserToRoleAsync(ApplicationUser user, string roleName);
     }
 }

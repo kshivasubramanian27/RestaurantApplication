@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using RestaurantApplicationAPI.DTO.Users;
 using RestaurantApplicationAPI.Extensions;
 using RestaurantApplicationAPI.ServiceContracts;
+using System.Security.Claims;
 
 namespace RestaurantApplicationAPI.Controllers
 {
@@ -50,7 +51,7 @@ namespace RestaurantApplicationAPI.Controllers
         }
 
         [HttpGet("{userId}")]
-        public async Task<IActionResult> EditUser(string userId)
+        public async Task<IActionResult> GetUserById(string userId)
         {
             if (!User.HasPermission("User.Update"))
                 return Forbid();
@@ -58,6 +59,35 @@ namespace RestaurantApplicationAPI.Controllers
             var result = await _usersService.GetUserByIdAsync(userId);
 
             return Ok(result);
+        }
+
+        [HttpPut("{userId}")]
+        public async Task<IActionResult> UpdateUser(string userId, [FromBody] UpdateUserDTO request)
+        {
+            if (!User.HasPermission("User.Update"))
+                return Forbid();
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrWhiteSpace(currentUserId))
+                return Unauthorized();
+
+            request.Id = userId;
+
+            var result = await _usersService.UpdateUserAsync(request, currentUserId);
+
+            if (!result.Success)
+            {
+                return BadRequest(new
+                {
+                    message = result.Error
+                });
+            }
+
+            return Ok(new
+            {
+                message = "User updated successfully."
+            });
         }
     }
 }

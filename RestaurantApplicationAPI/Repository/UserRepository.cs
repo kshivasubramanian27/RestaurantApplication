@@ -53,9 +53,24 @@ namespace RestaurantApplicationAPI.Repository
             return IdentityResult.Success;
         }
 
-        public Task<ApplicationUser> GetUserByIdAsync(string userId)
+        public Task<ApplicationUser?> GetUserByIdAsync(string userId)
         {
             return _userManager.FindByIdAsync(userId);
+        }
+
+        public async Task<IdentityResult> UpdateUserAsync(ApplicationUser user)
+        {
+            return await _userManager.UpdateAsync(user);
+        }
+
+        public Task<IdentityResult> RemoveUserFromRoleAsync(ApplicationUser user, string roleName)
+        {
+            return _userManager.RemoveFromRoleAsync(user, roleName);
+        }
+
+        public Task<IdentityResult> AddUserToRoleAsync(ApplicationUser user, string roleName)
+        {
+            return _userManager.AddToRoleAsync(user, roleName);
         }
     }
 }

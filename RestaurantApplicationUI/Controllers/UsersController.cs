@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RestaurantApplicationUI.DTO.Users;
 using RestaurantApplicationUI.ServiceContracts;
+using System.Security.Claims;
 
 namespace RestaurantApplicationUI.Controllers
 {
@@ -96,6 +97,56 @@ namespace RestaurantApplicationUI.Controllers
             return View(user);
         }
 
+        [HttpPost("Edit/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(string id, UpdateUserDTO model)
+        {
+            var accessToken = User.FindFirst("access_token")?.Value;
+
+            if (string.IsNullOrWhiteSpace(accessToken))
+                return RedirectToAction("Login", "Account");
+
+            model.Id = id;
+
+            if (!ModelState.IsValid)
+            {
+                var roles = await _usersService.GetAllRolesAsync(accessToken);
+
+                ViewBag.Roles = roles;
+
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                ViewBag.CurrentUserRole = currentUserRole;
+
+                var existingUser = await _usersService.GetUserByIdAsync(accessToken, id);
+
+                return View(existingUser);
+            }
+
+            var result = await _usersService.UpdateUserAsync(accessToken, model);
+
+            if (!result.success)
+            {
+                ModelState.AddModelError(string.Empty, result.error ?? "Unable to update the user.");
+
+                var roles = await _usersService.GetAllRolesAsync(accessToken);
+
+                ViewBag.Roles = roles;
+
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                ViewBag.CurrentUserRole = currentUserRole;
+
+                var existingUser = await _usersService.GetUserByIdAsync(accessToken, id);
+
+                return View(existingUser);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        #region Private method declarations
+
         private async Task LoadRoles(CreateUserRequestDTO request)
         {
             var accessToken = User.FindFirst("access_token")?.Value;
@@ -107,5 +158,7 @@ namespace RestaurantApplicationUI.Controllers
 
             ViewBag.Roles = roles;
         }
+
+        #endregion
     }
 }

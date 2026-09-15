@@ -12,5 +12,7 @@ namespace RestaurantApplicationUI.ServiceContracts
         Task<(bool success, string? error)> CreateUserAsync(CreateUserRequestDTO request, string accessToken);
 
         Task<UsersDTO> GetUserByIdAsync(string accessToken, string userId);
+
+        Task<(bool success, string? error)> UpdateUserAsync(string accessToken, UpdateUserDTO model);
     }
 }

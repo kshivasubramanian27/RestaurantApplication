@@ -3,6 +3,7 @@ using RestaurantApplicationUI.DTO.Roles;
 using RestaurantApplicationUI.DTO.Users;
 using RestaurantApplicationUI.ServiceContracts;
 using System.Net.Http.Headers;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RestaurantApplicationUI.Services
 {
@@ -66,6 +67,20 @@ namespace RestaurantApplicationUI.Services
             var user = await response.Content.ReadFromJsonAsync<UsersDTO>();
 
             return user;
+        }
+
+        public async Task<(bool success, string? error)> UpdateUserAsync(string accessToken, UpdateUserDTO model)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.PutAsJsonAsync($"api/Users/{model.Id}", model);
+
+            if (response.IsSuccessStatusCode)
+                return (true, null);
+
+            var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
+
+            return (false, error?.Message ?? "Unable to update the user.");
         }
     }
 }

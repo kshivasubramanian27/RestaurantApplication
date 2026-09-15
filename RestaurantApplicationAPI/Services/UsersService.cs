@@ -108,5 +108,91 @@ namespace RestaurantApplicationAPI.Services
                 Roles = userRole
             };
         }
+
+        public async Task<(bool Success, string Error)> UpdateUserAsync(UpdateUserDTO request, string currentUserId)
+        {
+            var currentUser = await _userRepository.GetUserByIdAsync(currentUserId);
+
+            if (currentUser == null)
+                return (false, "The current user account was not found.");
+
+            var targetUser = await _userRepository.GetUserByIdAsync(request.Id);
+
+            if (targetUser == null)
+                return (false, "The user you are trying to update was not found.");
+
+            var currentUserRoles = await _userRepository.GetRoleByUsernameAsync(currentUser);
+
+            var currentUserLevel = currentUserRoles.Where(role => RoleHierarchy.RoleHierarchyDict.ContainsKey(role))
+                                                    .Select(role => RoleHierarchy.RoleHierarchyDict[role])
+                                                    .DefaultIfEmpty(0).FirstOrDefault();
+
+            if (currentUserLevel == 0)
+                return (false, "You are not authorized to update users.");
+
+            var targetUserRoles = await _userRepository.GetRoleByUsernameAsync(targetUser);
+
+            var targetUserLevel = targetUserRoles.Where(role => RoleHierarchy.RoleHierarchyDict.ContainsKey(role))
+                                                    .Select(role => RoleHierarchy.RoleHierarchyDict[role])
+                                                    .DefaultIfEmpty(0).FirstOrDefault();
+
+            if (targetUserLevel > currentUserLevel)
+                return (false, "You cannot edit a user with a higher-level role than your own.");
+
+            var isEditingOwnAccount = string.Equals(currentUser.Id, targetUser.Id, StringComparison.OrdinalIgnoreCase);
+
+            if (!RoleHierarchy.RoleHierarchyDict.TryGetValue(request.RoleName, out var requestedRoleLevel))
+                return (false, "The selected role is invalid.");
+
+            if (requestedRoleLevel > currentUserLevel)
+                return (false, "You cannot assign a role higher than your own.");
+
+            var currentRole = targetUserRoles.FirstOrDefault();
+
+            if (isEditingOwnAccount && !string.Equals(currentRole, request.RoleName, StringComparison.OrdinalIgnoreCase))
+                return (false, "You cannot change your own role.");
+
+            targetUser.FirstName = request.FirstName;
+            targetUser.LastName = request.LastName;
+            targetUser.Email = request.Email;
+            targetUser.PhoneNumber = request.PhoneNumber;
+            targetUser.Address = request.Address;
+            targetUser.IsActive = request.IsActive;
+
+            var updateResult = await _userRepository.UpdateUserAsync(targetUser);
+
+            if (!updateResult.Succeeded)
+            {
+                var errors = string.Join("; ", updateResult.Errors.Select(error => error.Description));
+
+                return (false, errors);
+            }
+
+            if (!string.Equals(currentRole, request.RoleName, StringComparison.OrdinalIgnoreCase))
+            {
+                if (!string.IsNullOrWhiteSpace(currentRole))
+                {
+                    var removeResult = await _userRepository.RemoveUserFromRoleAsync(targetUser, currentRole);
+
+                    if (!removeResult.Succeeded)
+                    {
+                        var errors = string.Join("; ", removeResult.Errors.Select(error => error.Description));
+
+                        return (false, errors);
+                    }
+                }
+
+                var addResult = await _userRepository.AddUserToRoleAsync(targetUser, request.RoleName);
+
+                if (!addResult.Succeeded)
+                {
+                    var errors = string.Join("; ", addResult.Errors.Select(error => error.Description));
+
+                    return (false, errors);
+                }
+            }
+
+            return (true, string.Empty);
+        }
     }
 }
