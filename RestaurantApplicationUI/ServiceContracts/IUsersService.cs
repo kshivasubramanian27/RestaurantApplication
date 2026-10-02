@@ -14,5 +14,7 @@ namespace RestaurantApplicationUI.ServiceContracts
         Task<UsersDTO> GetUserByIdAsync(string accessToken, string userId);
 
         Task<(bool success, string? error)> UpdateUserAsync(string accessToken, UpdateUserDTO model);
+
+        Task<(bool success, string? error)> DeleteUserAsync(string accessoken, string userId);
     }
 }

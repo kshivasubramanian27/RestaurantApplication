@@ -22,5 +22,7 @@ namespace RestaurantApplicationAPI.RepositoryContracts
         public Task<IdentityResult> RemoveUserFromRoleAsync(ApplicationUser user, string roleName);
 
         public Task<IdentityResult> AddUserToRoleAsync(ApplicationUser user, string roleName);
+
+        public Task<IdentityResult> DeleteUserAsync(ApplicationUser user);
     }
 }
