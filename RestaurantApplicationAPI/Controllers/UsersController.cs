@@ -89,5 +89,30 @@ namespace RestaurantApplicationAPI.Controllers
                 message = "User updated successfully."
             });
         }
+
+        [HttpDelete("{userId}")]
+        public async Task<IActionResult> DeleteUser(string userId)
+        {
+            if (!User.HasPermission("User.Delete"))
+                return Forbid();
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrWhiteSpace(currentUserId))
+                return Unauthorized();
+
+            var result = await _usersService.DeleteUserAsync(userId, currentUserId);
+
+            if (!result.Success)
+                return BadRequest(new
+                {
+                    message = result.Error
+                });
+
+            return Ok(new
+            {
+                message = "User deleted successfully."
+            });
+        }
     }
 }

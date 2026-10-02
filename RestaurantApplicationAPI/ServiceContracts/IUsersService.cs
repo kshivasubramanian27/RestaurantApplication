@@ -12,5 +12,7 @@ namespace RestaurantApplicationAPI.ServiceContracts
         public Task<UsersDTO> GetUserByIdAsync(string userId);
 
         public Task<(bool Success, string Error)> UpdateUserAsync(UpdateUserDTO request, string currentUserId);
+
+        public Task<(bool Success, string? Error)> DeleteUserAsync(string userId, string currentUserId);
     }
 }

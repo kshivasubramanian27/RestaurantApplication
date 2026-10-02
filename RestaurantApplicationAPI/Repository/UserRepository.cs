@@ -72,5 +72,10 @@ namespace RestaurantApplicationAPI.Repository
         {
             return _userManager.AddToRoleAsync(user, roleName);
         }
+
+        public async Task<IdentityResult> DeleteUserAsync(ApplicationUser user)
+        {
+            return await _userManager.DeleteAsync(user);
+        }
     }
 }

@@ -157,7 +157,8 @@
                                         @if (canDelete)
                                         {
                                             <button type="button"
-                                                    class="btn btn-sm btn-outline-danger">
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    onclick="openDeleteModal('@user.Id', '@user.Username')">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         }
@@ -167,6 +168,48 @@
                         </tbody>
 
                     </table>
+
+                    <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteUserModalLabel">
+                                        Confirm Delete
+                                    </h5>
+
+                                    <button type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal"
+                                            aria-label="Close">
+                                    </button>
+                                </div>
+
+                                <div class="modal-body">
+                                    Are you sure you want to permanently delete Account:
+                                    <strong id="deleteUserName"></strong>?
+                                </div>
+
+                                <div class="modal-footer">
+
+                                    <button type="button"
+                                            class="btn btn-secondary"
+                                            data-bs-dismiss="modal">
+                                        Cancel
+                                    </button>
+
+                                    <a href="#"
+                                       class="btn btn-danger"
+                                       id="confirmDeleteButton">
+                                        Delete
+                                    </a>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
             </div>
@@ -174,3 +217,20 @@
     }
 
 </div>
+
+<script>
+
+    let selectedUserId = null;
+
+    function openDeleteModal(userId, username) {
+
+        document.getElementById("deleteUserName").textContent = username;
+
+        document.getElementById("confirmDeleteButton").href = "/Users/Delete/" + userId;
+
+        const modal = new bootstrap.Modal(document.getElementById("deleteUserModal"));
+
+        modal.show();
+    }
+
+</script>

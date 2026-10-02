@@ -145,6 +145,25 @@ namespace RestaurantApplicationUI.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpGet("Delete/{userId}")]
+        public async Task<IActionResult> DeleteUser(string userId)
+        {
+            var accessToken = User.FindFirst("access_token")?.Value;
+
+            if (string.IsNullOrWhiteSpace(accessToken))
+                return RedirectToAction("Login", "Account");
+
+            var result = await _usersService.DeleteUserAsync(accessToken, userId);
+
+            if (!result.success)
+            {
+                ViewBag.ErrorMessage = result.error;
+                return RedirectToAction(nameof(Index));
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
         #region Private method declarations
 
         private async Task LoadRoles(CreateUserRequestDTO request)

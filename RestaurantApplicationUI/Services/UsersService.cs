@@ -3,7 +3,6 @@ using RestaurantApplicationUI.DTO.Roles;
 using RestaurantApplicationUI.DTO.Users;
 using RestaurantApplicationUI.ServiceContracts;
 using System.Net.Http.Headers;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RestaurantApplicationUI.Services
 {
@@ -81,6 +80,20 @@ namespace RestaurantApplicationUI.Services
             var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
 
             return (false, error?.Message ?? "Unable to update the user.");
+        }
+
+        public async Task<(bool success, string? error)> DeleteUserAsync(string accessToken, string userId)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.DeleteAsync($"api/Users/{userId}");
+
+            if (response.IsSuccessStatusCode)
+                return (true, null);
+
+            var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
+
+            return (false, error?.Message ?? "Unable to delete the user.");
         }
     }
 }

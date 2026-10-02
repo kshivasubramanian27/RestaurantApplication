@@ -194,5 +194,56 @@ namespace RestaurantApplicationAPI.Services
 
             return (true, string.Empty);
         }
+
+        public async Task<(bool Success, string? Error)> DeleteUserAsync(string userId, string currentUserId)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId);
+
+            if (user == null)
+                return (false, "User not found.");
+
+            if (user.Id == currentUserId)
+                return (false, "You cannot delete your own account.");
+
+            var targetUserRoles = await _userRepository.GetRoleByUsernameAsync(user);
+
+            if (targetUserRoles == null || targetUserRoles.Count == 0)
+                return (false, "The user does not have a valid role.");
+
+            var currentUser = await _userRepository.GetUserByIdAsync(currentUserId);
+
+            if (currentUser == null)
+                return (false, "Current user not found.");
+
+            var currentUserRoles = await _userRepository.GetRoleByUsernameAsync(currentUser);
+
+            if (currentUserRoles == null || currentUserRoles.Count == 0)
+                return (false, "Current user does not have a valid role.");
+
+            var targetRole = targetUserRoles.First();
+            var currentRole = currentUserRoles.First();
+
+            var hierarchy = RoleHierarchy.RoleHierarchyDict;
+
+            if (!hierarchy.TryGetValue(targetRole, out var targetRoleLevel))
+                return (false, "Target user's role is invalid.");
+
+            if (!hierarchy.TryGetValue(currentRole, out var currentRoleLevel))
+                return (false, "Current user's role is invalid.");
+
+            if (targetRoleLevel > currentRoleLevel)
+                return (false, "You cannot delete a user with a higher role.");
+
+            var result = await _userRepository.DeleteUserAsync(user);
+
+            if (!result.Succeeded)
+            {
+                var error = string.Join(", ", result.Errors.Select(e => e.Description));
+
+                return (false, error);
+            }
+
+            return (true, null);
+        }
     }
 }
