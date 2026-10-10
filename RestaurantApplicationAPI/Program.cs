@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using RestaurantApplicationAPI.Configuration;
 using RestaurantApplicationAPI.DBContext;
+using RestaurantApplicationAPI.Middleware;
 using RestaurantApplicationAPI.Models;
 using RestaurantApplicationAPI.Repository;
 using RestaurantApplicationAPI.RepositoryContracts;
@@ -80,6 +81,8 @@ builder.Services.AddAuthorization(options =>
 { options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme).RequireAuthenticatedUser().Build(); });
 
 var app = builder.Build();
+
+app.UseMiddleware<GlobalExceptionHandler>();
 
 using (var scope = app.Services.CreateScope())
 {

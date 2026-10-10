@@ -8,6 +8,6 @@ namespace RestaurantApplicationAPI.Controllers
     [Authorize]
     public class DashboardController : ControllerBase
     {
-        
+
     }
 }
