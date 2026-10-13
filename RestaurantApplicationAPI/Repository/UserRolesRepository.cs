@@ -2,16 +2,19 @@
 using RestaurantApplicationAPI.DBContext;
 using RestaurantApplicationAPI.Models;
 using RestaurantApplicationAPI.RepositoryContracts;
+using Microsoft.EntityFrameworkCore;
 
 namespace RestaurantApplicationAPI.Repository
 {
     public class UserRolesRepository : IUserRolesRepository
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly ApplicationDBContext _dbContext;
 
-        public UserRolesRepository(RoleManager<ApplicationRole> roleManager)
+        public UserRolesRepository(RoleManager<ApplicationRole> roleManager, ApplicationDBContext dbContext)
         {
             _roleManager = roleManager;
+            _dbContext = dbContext;
         }
 
         public Task<IList<ApplicationRole>> GetAllRolesAsync()
@@ -19,6 +22,13 @@ namespace RestaurantApplicationAPI.Repository
             var allRoles = Task.FromResult<IList<ApplicationRole>>(_roleManager.Roles.ToList());
 
             return allRoles;
+        }
+
+        public async Task<IList<Permission>> GetAllPermissionsAsync()
+        {
+            var permissions = await _dbContext.Permissions.OrderBy(x => x.Name).ToListAsync();
+
+            return permissions;
         }
     }
 }
