@@ -27,5 +27,16 @@ namespace RestaurantApplicationAPI.Controllers
 
             return Ok(allRoles);
         }
+
+        [HttpGet("GetAllPermissions")]
+        public async Task<IActionResult> GetAllPermissions()
+        {
+            //if (!User.HasPermission("User.PermissionCreate"))
+            //    return Forbid();
+
+            var permissions = await _userRolesService.GetAllPermissionsAsync();
+
+            return Ok(permissions);
+        }
     }
 }

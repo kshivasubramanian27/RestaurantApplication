@@ -95,5 +95,18 @@ namespace RestaurantApplicationUI.Services
 
             return (false, error?.Message ?? "Unable to delete the user.");
         }
+
+        public async Task<IList<UserPermissionsDTO>> GetAllPermissionsAsync(string accessToken)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.GetAsync($"api/UserRoles/GetAllPermissions");
+
+            response.EnsureSuccessStatusCode();
+
+            var permissions = await response.Content.ReadFromJsonAsync<IList<UserPermissionsDTO>>();
+
+            return permissions ?? new List<UserPermissionsDTO>();
+        }
     }
 }
