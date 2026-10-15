@@ -10,6 +10,8 @@ namespace RestaurantApplicationAPI.ServiceContracts
 
         public Task<ServiceResult<EditUserPermissionDTO>> GetPermissionByIdAsync(string Id);
 
+        public Task<ServiceResult<EditUserPermissionDTO>> GetPermissionByNameAsync(string permissionName);
+
         public Task<ServiceResult<EditUserPermissionDTO>> UpdatePermissionAsync(Guid id, EditUserPermissionDTO updatedPermissionDetails);
 
         public Task<ServiceResult<bool>> DeletePermissionAsync(Guid id);

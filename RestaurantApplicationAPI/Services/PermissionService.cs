@@ -1,6 +1,5 @@
 ﻿using RestaurantApplicationAPI.DTO.Roles;
 using RestaurantApplicationAPI.Models;
-using RestaurantApplicationAPI.Repository;
 using RestaurantApplicationAPI.RepositoryContracts;
 using RestaurantApplicationAPI.ServiceContracts;
 using RestaurantApplicationAPI.Utilities;
@@ -64,6 +63,29 @@ namespace RestaurantApplicationAPI.Services
             return ServiceResult<EditUserPermissionDTO>.SuccessResult(permissionDTO);
         }
 
+        public async Task<ServiceResult<EditUserPermissionDTO>> GetPermissionByNameAsync(string permissionName)
+        {
+            var permission = await _permissionRepository.GetPermissionDetailsAsync(permissionName);
+
+            if (permission.StatusCode == ServiceResultStatus.NotFound)
+                return ServiceResult<EditUserPermissionDTO>.FailureResult("Permission doesn't exist", ServiceResultStatus.NotFound);
+
+            if (!permission.Success || permission.Data == null)
+                return ServiceResult<EditUserPermissionDTO>.FailureResult("Permission doesn't exist", ServiceResultStatus.Conflict);
+
+            if (permission.StatusCode == ServiceResultStatus.Error)
+                return ServiceResult<EditUserPermissionDTO>.FailureResult("Failed to get the permission data", ServiceResultStatus.Error);
+
+            EditUserPermissionDTO permissionDTO = new()
+            {
+                Id = permission.Data.Id,
+                Name = permission.Data.Name,
+                Description = permission.Data.Description
+            };
+
+            return ServiceResult<EditUserPermissionDTO>.SuccessResult(permissionDTO);
+        }
+
         public async Task<ServiceResult<EditUserPermissionDTO>> UpdatePermissionAsync(Guid id, EditUserPermissionDTO updatedPermissionDetails)
         {
             var permission = new Permission
@@ -76,7 +98,7 @@ namespace RestaurantApplicationAPI.Services
             var result = await _permissionRepository.UpdatePermissionAsync(permission);
 
             if (!result.Success || result.Data == null)
-                return ServiceResult<EditUserPermissionDTO>.FailureResult("Failed to update permission", result.StatusCode);
+                return ServiceResult<EditUserPermissionDTO>.FailureResult(result.Error!, result.StatusCode);
 
             var updatedDto = new EditUserPermissionDTO
             {

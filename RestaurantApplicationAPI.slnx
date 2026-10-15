@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/Solution Items/">
     <File Path=".gitignore" />
+    <Project Path="RestaurantApplicationAPI.Tests/RestaurantApplicationAPI.Tests.csproj" Id="c3235c65-bee0-474f-8827-f52c6ef27589" />
   </Folder>
   <Project Path="RestaurantApplicationAPI/RestaurantApplicationAPI.csproj" />
   <Project Path="RestaurantApplicationUI/RestaurantApplicationUI.csproj" Id="a77f09f4-fadc-431c-aa80-6372680ffa93" />
