@@ -8,7 +8,6 @@
 
     var roles = ViewBag.Roles as IList<UserRolesDTO> ?? new List<UserRolesDTO>();
     var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
-
 }
 
 <link href="~/BootstrapCSS/breadcrumbs.css" rel="stylesheet" />

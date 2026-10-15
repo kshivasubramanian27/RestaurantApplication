@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RestaurantApplicationAPI.DBContext;
+using RestaurantApplicationAPI.Models;
 using RestaurantApplicationAPI.RepositoryContracts;
+using RestaurantApplicationAPI.Utilities;
+using System.Security;
 
 namespace RestaurantApplicationAPI.Repository
 {
@@ -26,6 +29,101 @@ namespace RestaurantApplicationAPI.Repository
                 .Distinct().ToListAsync();
 
             return permissionNames;
+        }
+
+        public async Task<ServiceResult<Permission>> CreatePermissionAsync(Permission permission)
+        {
+            try
+            {
+                _context.Permissions.Add(permission);
+                await _context.SaveChangesAsync();
+
+                return ServiceResult<Permission>.SuccessResult(permission);
+            }
+            catch(Exception exception)
+            {
+                return ServiceResult<Permission>.FailureResult(exception.ToString(), ServiceResultStatus.Error);
+            }            
+        }
+
+        public async Task<ServiceResult<Permission>> GetPermissionDetailsAsync(string name)
+        {
+            try
+            {
+                Permission? permission = await _context.Permissions.FirstOrDefaultAsync(x => x.Name == name);
+
+                if (permission == null)
+                    return ServiceResult<Permission>.FailureResult("Permission not found", ServiceResultStatus.NotFound);
+
+                return ServiceResult<Permission>.SuccessResult(permission);
+            }
+            catch (Exception exception)
+            {
+                return ServiceResult<Permission>.FailureResult(exception.ToString(), ServiceResultStatus.Error);
+            }
+        }
+
+        public async Task<ServiceResult<Permission>> GetPermissionDetailsAsync(Guid Id)
+        {
+            try
+            {
+                Permission? permission = await _context.Permissions.FirstOrDefaultAsync(x => x.Id == Id);
+
+                if (permission == null)
+                    return ServiceResult<Permission>.FailureResult("Permission not found", ServiceResultStatus.NotFound);
+
+                return ServiceResult<Permission>.SuccessResult(permission);
+            }
+            catch (Exception exception)
+            {
+                return ServiceResult<Permission>.FailureResult(exception.ToString(), ServiceResultStatus.Error);
+            }
+        }
+
+        public async Task<ServiceResult<Permission>> UpdatePermissionAsync(Permission permission)
+        {
+            try
+            {
+                var existingPermission = await _context.Permissions.FirstOrDefaultAsync(x => x.Id == permission.Id);
+
+                if (existingPermission == null)
+                    return ServiceResult<Permission>.FailureResult("Permission not found", ServiceResultStatus.NotFound);
+
+                existingPermission.Name = permission.Name;
+                existingPermission.Description = permission.Description;
+
+                await _context.SaveChangesAsync();
+
+                return ServiceResult<Permission>.SuccessResult(existingPermission);
+            }
+            catch (DbUpdateException)
+            {
+                return ServiceResult<Permission>.FailureResult("Failed to update permission", ServiceResultStatus.Error);
+            }
+        }
+
+        public async Task<ServiceResult<bool>> DeletePermissionAsync(Guid Id)
+        {
+            try
+            {
+                var permission = await _context.Permissions.FirstOrDefaultAsync(p => p.Id == Id);
+
+                if (permission == null)
+                    return ServiceResult<bool>.FailureResult("Permission not found", ServiceResultStatus.NotFound);
+
+                var rolePermissions = await _context.RolePermissions.Where(rp => rp.PermissionId == Id).ToListAsync();
+
+                _context.RolePermissions.RemoveRange(rolePermissions);
+                _context.Permissions.Remove(permission);
+
+                await _context.SaveChangesAsync();
+
+                return ServiceResult<bool>.SuccessResult(true);
+            }
+            catch (DbUpdateException)
+            {
+                return ServiceResult<bool>.FailureResult("Failed to Delete permission", ServiceResultStatus.Error);
+            }
         }
     }
 }
