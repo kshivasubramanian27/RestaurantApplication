@@ -1,5 +1,4 @@
 ﻿using RestaurantApplicationAPI.DTO.Users;
-using RestaurantApplicationAPI.Utilities;
 
 namespace RestaurantApplicationAPI.ServiceContracts
 {

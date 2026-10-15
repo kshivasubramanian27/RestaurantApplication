@@ -108,5 +108,60 @@ namespace RestaurantApplicationUI.Services
 
             return permissions ?? new List<UserPermissionsDTO>();
         }
+
+        public async Task<(bool success, string? error)> CreatePermissionAsync(string accessToken, CreateUserPermissionDTO model)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.PostAsJsonAsync("api/UserRoles/AddPermission", model);
+
+            if (response.IsSuccessStatusCode)
+                return (true, null);
+
+            var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
+
+            return (false, error?.Message ?? "Unable to create the new user permission");
+        }
+
+        public async Task<EditUserPermissionDTO> GetPermissionDetailsByIdAsync(string accessToken, string Id)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.GetAsync($"api/UserRoles/EditPermission/{Id}");
+
+            response.EnsureSuccessStatusCode();
+
+            var permissionDetails = await response.Content.ReadFromJsonAsync<EditUserPermissionDTO>();
+
+            return permissionDetails ?? new EditUserPermissionDTO();
+        }
+
+        public async Task<(bool success, string? error)> UpdatePermissionDetailsAsync(string accessToken, EditUserPermissionDTO model)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.PutAsJsonAsync($"api/UserRoles/EditPermission/{model.Id}", model);
+
+            if (response.IsSuccessStatusCode)
+                return (true, null);
+
+            var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
+
+            return (false, error?.Message ?? "Unable to update the user.");
+        }
+
+        public async Task<(bool success, string? error)> DeletePermissionAsync(string accessToken, Guid id)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.DeleteAsync($"api/UserRoles/DeletePermission/{id}");
+
+            if (response.IsSuccessStatusCode)
+                return (true, null);
+
+            var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
+
+            return (false, error?.Message ?? "Unable to delete the permission.");
+        }
     }
 }

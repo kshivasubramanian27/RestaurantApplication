@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RestaurantApplicationAPI.DTO.Roles;
 using RestaurantApplicationAPI.DTO.Users;
 using RestaurantApplicationAPI.Extensions;
 using RestaurantApplicationAPI.ServiceContracts;
@@ -13,10 +14,12 @@ namespace RestaurantApplicationAPI.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUsersService _usersService;
+        private readonly IPermissionService _permissionService;
 
-        public UsersController(IUsersService usersService)
+        public UsersController(IUsersService usersService, IPermissionService permissionService)
         {
             _usersService = usersService;
+            _permissionService = permissionService;
         }
 
         [HttpGet]
