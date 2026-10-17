@@ -3,7 +3,6 @@ using RestaurantApplicationAPI.DBContext;
 using RestaurantApplicationAPI.Models;
 using RestaurantApplicationAPI.RepositoryContracts;
 using RestaurantApplicationAPI.Utilities;
-using System.Security;
 
 namespace RestaurantApplicationAPI.Repository
 {
@@ -14,6 +13,20 @@ namespace RestaurantApplicationAPI.Repository
         public PermissionRepository(ApplicationDBContext context)
         {
             _context = context;
+        }
+
+        public async Task<ServiceResult<IList<Permission>>> GetAllPermissionsAsync()
+        {
+            try
+            {
+                var permissions = await _context.Permissions.OrderBy(x => x.Name).ToListAsync();
+
+                return ServiceResult<IList<Permission>>.SuccessResult(permissions);
+            }
+            catch (Exception exception)
+            {
+                return ServiceResult<IList<Permission>>.FailureResult(exception.ToString(), ServiceResultStatus.Error);
+            }
         }
 
         public async Task<IEnumerable<string>> GetPermissionsForRolesAsync(IEnumerable<string> roles)
@@ -88,6 +101,11 @@ namespace RestaurantApplicationAPI.Repository
 
                 if (existingPermission == null)
                     return ServiceResult<Permission>.FailureResult("Permission not found", ServiceResultStatus.NotFound);
+
+                var isDuplicateName = await _context.Permissions.AnyAsync(x => x.Name == permission.Name && x.Id != permission.Id);
+
+                if (isDuplicateName)
+                    return ServiceResult<Permission>.FailureResult("A permission with this name already exists.", ServiceResultStatus.Conflict);
 
                 existingPermission.Name = permission.Name;
                 existingPermission.Description = permission.Description;

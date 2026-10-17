@@ -6,6 +6,8 @@ namespace RestaurantApplicationAPI.ServiceContracts
 {
     public interface IPermissionService
     {
+        public Task<ServiceResult<IList<UserPermissionsDTO>>> GetAllPermissionsAsync();
+
         public Task<ServiceResult<Permission>> CreatePermissionAsync(CreateUserPermissionDTO userPermission);
 
         public Task<ServiceResult<EditUserPermissionDTO>> GetPermissionByIdAsync(string Id);

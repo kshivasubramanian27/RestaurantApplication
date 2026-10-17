@@ -23,12 +23,5 @@ namespace RestaurantApplicationAPI.Repository
 
             return allRoles;
         }
-
-        public async Task<IList<Permission>> GetAllPermissionsAsync()
-        {
-            var permissions = await _dbContext.Permissions.OrderBy(x => x.Name).ToListAsync();
-
-            return permissions;
-        }
     }
 }

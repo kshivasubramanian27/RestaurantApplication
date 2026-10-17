@@ -60,6 +60,13 @@
 
         <div class="card-body">
 
+            @if (ViewBag.CreatePermissionError != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @ViewBag.CreatePermissionError
+                </div>
+            }
+
             <form asp-controller="RolesAndPermissions"
                   asp-action="AddPermission"
                   method="post">

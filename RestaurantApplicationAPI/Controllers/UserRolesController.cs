@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using RestaurantApplicationAPI.DTO.Roles;
 using RestaurantApplicationAPI.Extensions;
 using RestaurantApplicationAPI.ServiceContracts;
-using RestaurantApplicationAPI.Utilities;
 
 namespace RestaurantApplicationAPI.Controllers
 {
@@ -38,9 +37,9 @@ namespace RestaurantApplicationAPI.Controllers
             //if (!User.HasPermission("Permission.View"))
             //    return Forbid();
 
-            var permissions = await _userRolesService.GetAllPermissionsAsync();
+            var permissions = await _permissionService.GetAllPermissionsAsync();
 
-            return Ok(permissions);
+            return permissions.ToActionResult(this);
         }
 
         [HttpPost("AddPermission")]
@@ -51,13 +50,7 @@ namespace RestaurantApplicationAPI.Controllers
 
             var result = await _permissionService.CreatePermissionAsync(request);
 
-            if (!result.Success)
-                return BadRequest(new
-                {
-                    message = result.Error
-                });
-
-            return Ok(new { message = "User Permission Created sucessfully." });
+            return result.ToActionResult(this);
         }
 
         [HttpGet("EditPermission/{id}")]
@@ -68,13 +61,7 @@ namespace RestaurantApplicationAPI.Controllers
 
             var result = await _permissionService.GetPermissionByIdAsync(id);
 
-            if (!result.Success)
-                return BadRequest(new
-                {
-                    message = result.Error
-                });
-
-            return Ok(result.Data);
+            return result.ToActionResult(this);
         }
 
         [HttpPut("EditPermission/{id}")]
@@ -85,18 +72,7 @@ namespace RestaurantApplicationAPI.Controllers
 
             var result = await _permissionService.UpdatePermissionAsync(Guid.Parse(id), updatedPermissionDetails);
 
-            if (!result.Success)
-            {
-                if (result.StatusCode == ServiceResultStatus.NotFound)
-                    return NotFound(result);
-
-                if (result.StatusCode == ServiceResultStatus.Conflict)
-                    return Conflict(result);
-
-                return StatusCode(500, result);
-            }
-
-            return Ok(result);
+            return result.ToActionResult(this);
         }
 
         [HttpDelete("DeletePermission/{id}")]
@@ -107,10 +83,7 @@ namespace RestaurantApplicationAPI.Controllers
 
             var result = await _permissionService.DeletePermissionAsync(Guid.Parse(id));
 
-            if (!result.Success)
-                return StatusCode(500, result);
-
-            return Ok(result);
+            return result.ToActionResult(this);
         }
     }
 }

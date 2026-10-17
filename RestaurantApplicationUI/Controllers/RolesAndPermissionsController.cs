@@ -52,13 +52,13 @@ namespace RestaurantApplicationUI.Controllers
                 return View("AddPermissions", model);
             }
 
-            var result = await _usersService.CreatePermissionAsync(accessToken, model);
+            var (success, error) = await _usersService.CreatePermissionAsync(accessToken, model);
 
-            if (!result.success)
+            if (!success)
             {
-                ViewBag.CreatePermissionError = result.error;
+                ViewBag.CreatePermissionError = error;
 
-                return View();
+                return View("AddPermissions", model);
             }
 
             return RedirectToAction(nameof(Index));
@@ -86,13 +86,13 @@ namespace RestaurantApplicationUI.Controllers
             if (string.IsNullOrWhiteSpace(accessToken))
                 return RedirectToAction("Login", "Account");
 
-            var result = await _usersService.UpdatePermissionDetailsAsync(accessToken, model);
+            var (success, error) = await _usersService.UpdatePermissionDetailsAsync(accessToken, model);
 
-            if(!result.success)
+            if(!success)
             {
-                ViewBag.ErrorDetails = $"{result.error} occured";
+                ViewBag.EditPermissionErrorDetails = error;
 
-                return RedirectToAction($"EditPermission/{model.Id}");
+                return View(model);
             }
 
             return RedirectToAction(nameof(Index));
@@ -106,10 +106,10 @@ namespace RestaurantApplicationUI.Controllers
             if (string.IsNullOrWhiteSpace(accessToken))
                 return RedirectToAction("Login", "Account");
 
-            var result = await _usersService.DeletePermissionAsync(accessToken, Guid.Parse(id));
+            var (success, error) = await _usersService.DeletePermissionAsync(accessToken, Guid.Parse(id));
 
-            if (!result.success)
-                ViewBag.ErrorDetails = $"{result.error} occured";
+            if (!success)
+                ViewBag.DeleteErrorDetails = error;
 
             return RedirectToAction(nameof(Index));
         }

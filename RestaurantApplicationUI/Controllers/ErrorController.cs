@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantApplicationUI.DTO.Exception;
+using RestaurantApplicationUI.Exceptions;
 
 namespace RestaurantApplicationUI.Controllers
 {
@@ -13,16 +14,26 @@ namespace RestaurantApplicationUI.Controllers
         {
             var exceptionFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
 
-            var controllerName = HttpContext.Items["OriginalControllerName"] as string ?? "Unknown";
-
             var exception = exceptionFeature?.Error;
 
-            var exceptionInfo = new ExceptionInfo(controllerName, exception?.StackTrace ?? exception?.ToString() ?? "No stack trace available."
+            var model = new ExceptionInfo(
+                controllerName: exceptionFeature?.Path ?? "Unknown",
+                errorMessage: "An unexpected error occurred. Please try again later.",
+                statusCode: 500,
+                stackTrace: ""
             );
 
-            Response.StatusCode = 500;
+            if (exception is ApiRequestException apiException)
+            {
+                model = new ExceptionInfo(
+                    controllerName: exceptionFeature?.Path ?? "Unknown",
+                    errorMessage: apiException.Message,
+                    statusCode: (int)apiException.StatusCode,
+                    stackTrace: apiException.StackTrace!
+                );
+            }
 
-            return View(exceptionInfo);
+            return View(model);
         }
     }
 }

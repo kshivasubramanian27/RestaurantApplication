@@ -5,6 +5,8 @@ namespace RestaurantApplicationAPI.RepositoryContracts
 {
     public interface IPermissionRepository
     {
+        public Task<ServiceResult<IList<Permission>>> GetAllPermissionsAsync();
+
         public Task<IEnumerable<string>> GetPermissionsForRolesAsync(IEnumerable<string> roles);
 
         public Task<ServiceResult<Permission>> CreatePermissionAsync(Permission newPermission);

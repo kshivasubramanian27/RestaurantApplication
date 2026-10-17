@@ -34,24 +34,5 @@ namespace RestaurantApplicationAPI.Services
 
             return userRoles;
         }
-
-        public async Task<IList<UserPermissionsDTO>> GetAllPermissionsAsync()
-        {
-            var allPermissions = await _userRolesRepository.GetAllPermissionsAsync();
-
-            List<UserPermissionsDTO> permissions = new();
-
-            foreach(var permission in allPermissions)
-            {
-                permissions.Add(new UserPermissionsDTO
-                {
-                    Id = permission.Id,
-                    Name = permission.Name,
-                    Description = permission.Description
-                });
-            }
-
-            return permissions;
-        }
     }
 }

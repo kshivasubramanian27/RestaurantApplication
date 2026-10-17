@@ -1,7 +1,9 @@
-﻿using RestaurantApplicationUI.DTO.Common;
-using RestaurantApplicationUI.DTO.Roles;
+﻿using RestaurantApplicationUI.DTO.Roles;
 using RestaurantApplicationUI.DTO.Users;
+using RestaurantApplicationUI.Exceptions;
 using RestaurantApplicationUI.ServiceContracts;
+using RestaurantApplicationUI.Utilities;
+using System.Net;
 using System.Net.Http.Headers;
 
 namespace RestaurantApplicationUI.Services
@@ -21,11 +23,11 @@ namespace RestaurantApplicationUI.Services
 
             var response = await _httpClient.GetAsync("api/Users");
 
-            response.EnsureSuccessStatusCode();
+            await ApiErrorHandler.EnsureSuccessAsync(response, "Unable to retrieve users.");
 
             var users = await response.Content.ReadFromJsonAsync<IList<UsersDTO>>();
 
-            return users;
+            return users ?? new List<UsersDTO>();
         }
 
         public async Task<IList<UserRolesDTO>> GetAllRolesAsync(string accessToken)
@@ -34,7 +36,7 @@ namespace RestaurantApplicationUI.Services
 
             var response = await _httpClient.GetAsync("api/UserRoles");
 
-            response.EnsureSuccessStatusCode();
+            await ApiErrorHandler.EnsureSuccessAsync(response, "Unable to retrieve roles.");
 
             var roles = await response.Content.ReadFromJsonAsync<IList<UserRolesDTO>>();
 
@@ -47,12 +49,12 @@ namespace RestaurantApplicationUI.Services
 
             var response = await _httpClient.PostAsJsonAsync("api/Users", request);
 
-            if (response.IsSuccessStatusCode)
-                return (true, null);
+            try
+            { await ApiErrorHandler.EnsureSuccessAsync(response, "Unable to create the user."); }
+            catch (ApiRequestException exception) when (exception.StatusCode == HttpStatusCode.Conflict || exception.StatusCode == HttpStatusCode.BadRequest)
+            { return (false, exception.Message); }
 
-            var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
-
-            return (false, error?.Message ?? "Unable to create the user.");
+            return (true, null);
         }
 
         public async Task<UsersDTO> GetUserByIdAsync(string accessToken, string userId)
@@ -61,11 +63,11 @@ namespace RestaurantApplicationUI.Services
 
             var response = await _httpClient.GetAsync($"api/Users/{userId}");
 
-            response.EnsureSuccessStatusCode();
+            await ApiErrorHandler.EnsureSuccessAsync(response, "Unable to retrieve the user.");
 
             var user = await response.Content.ReadFromJsonAsync<UsersDTO>();
 
-            return user;
+            return user ?? new();
         }
 
         public async Task<(bool success, string? error)> UpdateUserAsync(string accessToken, UpdateUserDTO model)
@@ -74,12 +76,12 @@ namespace RestaurantApplicationUI.Services
 
             var response = await _httpClient.PutAsJsonAsync($"api/Users/{model.Id}", model);
 
-            if (response.IsSuccessStatusCode)
-                return (true, null);
+            try
+            { await ApiErrorHandler.EnsureSuccessAsync(response, "Unable to update the user."); }
+            catch (ApiRequestException exception) when (exception.StatusCode == HttpStatusCode.Conflict || exception.StatusCode == HttpStatusCode.BadRequest)
+            { return (false, exception.Message); }
 
-            var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
-
-            return (false, error?.Message ?? "Unable to update the user.");
+            return (true, null);
         }
 
         public async Task<(bool success, string? error)> DeleteUserAsync(string accessToken, string userId)
@@ -88,12 +90,12 @@ namespace RestaurantApplicationUI.Services
 
             var response = await _httpClient.DeleteAsync($"api/Users/{userId}");
 
-            if (response.IsSuccessStatusCode)
-                return (true, null);
+            try
+            { await ApiErrorHandler.EnsureSuccessAsync(response, "Unable to delete the user."); }
+            catch (ApiRequestException exception) when (exception.StatusCode == HttpStatusCode.Conflict || exception.StatusCode == HttpStatusCode.BadRequest)
+            { return (false, exception.Message); }
 
-            var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
-
-            return (false, error?.Message ?? "Unable to delete the user.");
+            return (true, null);
         }
 
         public async Task<IList<UserPermissionsDTO>> GetAllPermissionsAsync(string accessToken)
@@ -102,7 +104,7 @@ namespace RestaurantApplicationUI.Services
 
             var response = await _httpClient.GetAsync($"api/UserRoles/GetAllPermissions");
 
-            response.EnsureSuccessStatusCode();
+            await ApiErrorHandler.EnsureSuccessAsync(response, "Unable to retrieve permissions.");
 
             var permissions = await response.Content.ReadFromJsonAsync<IList<UserPermissionsDTO>>();
 
@@ -115,12 +117,12 @@ namespace RestaurantApplicationUI.Services
 
             var response = await _httpClient.PostAsJsonAsync("api/UserRoles/AddPermission", model);
 
-            if (response.IsSuccessStatusCode)
-                return (true, null);
+            try
+            { await ApiErrorHandler.EnsureSuccessAsync(response, "Unable to create the new user permission."); }
+            catch (ApiRequestException exception) when (exception.StatusCode == HttpStatusCode.Conflict || exception.StatusCode == HttpStatusCode.BadRequest)
+            { return (false, exception.Message); }
 
-            var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
-
-            return (false, error?.Message ?? "Unable to create the new user permission");
+            return (true, null);
         }
 
         public async Task<EditUserPermissionDTO> GetPermissionDetailsByIdAsync(string accessToken, string Id)
@@ -129,7 +131,7 @@ namespace RestaurantApplicationUI.Services
 
             var response = await _httpClient.GetAsync($"api/UserRoles/EditPermission/{Id}");
 
-            response.EnsureSuccessStatusCode();
+            await ApiErrorHandler.EnsureSuccessAsync(response, "Unable to retrieve permission details.");
 
             var permissionDetails = await response.Content.ReadFromJsonAsync<EditUserPermissionDTO>();
 
@@ -142,12 +144,12 @@ namespace RestaurantApplicationUI.Services
 
             var response = await _httpClient.PutAsJsonAsync($"api/UserRoles/EditPermission/{model.Id}", model);
 
-            if (response.IsSuccessStatusCode)
-                return (true, null);
+            try
+            { await ApiErrorHandler.EnsureSuccessAsync(response, "Unable to update the permission."); }
+            catch (ApiRequestException exception) when (exception.StatusCode == HttpStatusCode.Conflict || exception.StatusCode == HttpStatusCode.BadRequest)
+            { return (false, exception.Message); }
 
-            var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
-
-            return (false, error?.Message ?? "Unable to update the user.");
+            return (true, null);
         }
 
         public async Task<(bool success, string? error)> DeletePermissionAsync(string accessToken, Guid id)
@@ -156,12 +158,12 @@ namespace RestaurantApplicationUI.Services
 
             var response = await _httpClient.DeleteAsync($"api/UserRoles/DeletePermission/{id}");
 
-            if (response.IsSuccessStatusCode)
-                return (true, null);
+            try
+            { await ApiErrorHandler.EnsureSuccessAsync(response, "Unable to delete the permission."); }
+            catch (ApiRequestException exception) when (exception.StatusCode == HttpStatusCode.Conflict || exception.StatusCode == HttpStatusCode.BadRequest)
+            { return (false, exception.Message); }
 
-            var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
-
-            return (false, error?.Message ?? "Unable to delete the permission.");
+            return (true, null);
         }
     }
 }

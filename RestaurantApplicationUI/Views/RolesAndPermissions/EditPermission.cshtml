@@ -60,6 +60,13 @@
 
         <div class="card-body">
 
+            @if (ViewBag.EditPermissionErrorDetails != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @ViewBag.EditPermissionErrorDetails
+                </div>
+            }
+
             <form asp-controller="RolesAndPermissions"
                   asp-action="EditPermission"
                   asp-route-id="@Model.Id"

@@ -1,5 +1,6 @@
 ﻿using RestaurantApplicationAPI.DTO.Roles;
 using RestaurantApplicationAPI.Models;
+using RestaurantApplicationAPI.Repository;
 using RestaurantApplicationAPI.RepositoryContracts;
 using RestaurantApplicationAPI.ServiceContracts;
 using RestaurantApplicationAPI.Utilities;
@@ -13,6 +14,28 @@ namespace RestaurantApplicationAPI.Services
         public PermissionService(IPermissionRepository permissionRepository)
         {
             _permissionRepository = permissionRepository;
+        }
+
+        public async Task<ServiceResult<IList<UserPermissionsDTO>>> GetAllPermissionsAsync()
+        {
+            var allPermissions = await _permissionRepository.GetAllPermissionsAsync();
+
+            if (!allPermissions.Success)
+                return ServiceResult<IList<UserPermissionsDTO>>.FailureResult(allPermissions.Error, allPermissions.StatusCode);
+
+            List <UserPermissionsDTO> permissions = new();
+
+            foreach (Permission permission in allPermissions.Data)
+            {
+                permissions.Add(new UserPermissionsDTO
+                {
+                    Id = permission.Id,
+                    Name = permission.Name,
+                    Description = permission.Description
+                });
+            }
+
+            return ServiceResult<IList<UserPermissionsDTO>>.SuccessResult(permissions);
         }
 
         public async Task<ServiceResult<Permission>> CreatePermissionAsync(CreateUserPermissionDTO userPermission)
