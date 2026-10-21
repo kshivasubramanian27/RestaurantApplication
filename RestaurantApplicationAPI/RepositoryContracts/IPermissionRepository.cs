@@ -18,5 +18,7 @@ namespace RestaurantApplicationAPI.RepositoryContracts
         public Task<ServiceResult<Permission>> UpdatePermissionAsync(Permission permission);
 
         public Task<ServiceResult<bool>> DeletePermissionAsync(Guid Id);
+
+        public Task<ServiceResult<string>> CreatePermissionForRole(RolePermission rolePermission);
     }
 }

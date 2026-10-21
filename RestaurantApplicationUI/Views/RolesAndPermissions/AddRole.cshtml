@@ -1,0 +1,309 @@
+﻿@model RestaurantApplicationUI.DTO.Roles.CreateUserRoleDTO
+@using RestaurantApplicationUI.DTO.Roles
+
+@{
+    ViewData["Title"] = "Add User Permission";
+    ViewBag.ActiveMenuLink = "RolesAndPermissions";
+    var allPermissions = ViewBag.allPermissions as IList<UserPermissionsDTO> ?? new List<UserPermissionsDTO>();
+}
+
+<link href="~/BootstrapCSS/breadcrumbs.css" rel="stylesheet" />
+
+<div class="container my-2">
+
+     
+    <nav aria-label="breadcrumb">
+
+        <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary border rounded-3">
+
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none"
+                   href="/Dashboard">
+                    <i class="bi bi-house"></i>
+                </a>
+            </li>
+
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none"
+                   asp-controller="RolesAndPermissions"
+                   asp-action="Index">
+                    Roles And Permissions
+                </a>
+            </li>
+
+            <li class="breadcrumb-item active"
+                aria-current="page">
+                Add User Role with Permissions
+            </li>
+
+        </ol>
+
+    </nav>
+
+     
+</div>
+
+<div class="container-fluid">
+
+     
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="mb-1">Add User Permission</h2>
+
+            <p class="text-muted mb-0">
+                Create a new Role with Permission
+            </p>
+        </div>
+
+    </div>
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            @if (ViewBag.CreateRoleError != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @ViewBag.CreateRoleError
+                </div>
+            }
+
+            <form asp-controller="RolesAndPermissions"
+                  asp-action="AddRole"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-4">
+                </div>
+
+                <h5 class="mb-3">
+                    <i class="bi bi-buildings-fill me-2"></i>
+                    New Role Details
+                </h5>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="Name"
+                               class="form-label">
+                            Name
+                        </label>
+
+                        <input asp-for="Name"
+                               class="form-control"
+                               autocomplete="Name" required />
+
+                        <span asp-validation-for="Name"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <h5 class="mb-3 mt-3">
+                    <i class="bi bi-chat-left me-2"></i>
+                    Description
+                </h5>
+
+                <div class="mb-3">
+
+                    <label asp-for="Description"
+                           class="form-label">
+                        Description
+                    </label>
+
+                    <textarea asp-for="Description"
+                              class="form-control"
+                              rows="3"></textarea>
+
+                    <span asp-validation-for="Description"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <h5 class="mb-3 mt-4">
+                    <i class="bi bi-shield-lock me-2"></i>
+                    Assign Permissions
+                </h5>
+
+                <p class="text-muted">
+                    Select the permissions you want to assign to this role.
+                </p>
+
+                <div class="row align-items-center">
+
+                    <!-- Available Permissions -->
+                    <div class="col-md-5 mb-3">
+
+                        <label for="availablePermissions" class="form-label fw-semibold">
+                            Available Permissions
+                        </label>
+
+                        <select id="availablePermissions"
+                                class="form-select"
+                                multiple
+                                size="10">
+
+                            @foreach (var permission in allPermissions)
+                            {
+                                <option value="@permission.Id">
+                                    @permission.Name
+                                </option>
+                            }
+
+                        </select>
+
+                        <small class="text-muted">
+                            Hold Ctrl to select multiple permissions.
+                        </small>
+
+                    </div>
+
+                    <!-- Arrow Buttons -->
+                    <div class="col-md-2 d-flex flex-column align-items-center
+                                justify-content-center gap-2 mb-3">
+
+                        <button type="button"
+                                id="addPermissions"
+                                class="btn btn-primary"
+                                title="Add selected permissions">
+                            <i class="bi bi-arrow-right"></i>
+                        </button>
+
+                        <button type="button"
+                                id="removePermissions"
+                                class="btn btn-outline-secondary"
+                                title="Remove selected permissions">
+                            <i class="bi bi-arrow-left"></i>
+                        </button>
+
+                    </div>
+
+                    <!-- Assigned Permissions -->
+                    <div class="col-md-5 mb-3">
+
+                        <label for="selectedPermissions" class="form-label fw-semibold">
+                            Assigned Permissions
+                        </label>
+
+                        <select id="selectedPermissions"
+                                class="form-select"
+                                multiple
+                                size="10">
+                        </select>
+
+                        <small class="text-muted">
+                            These permissions will be assigned to the role.
+                        </small>
+
+                    </div>
+
+                </div>
+
+                <!-- Hidden inputs will be generated here for model binding -->
+                <div id="permissionInputs"></div>
+
+                <div class="d-flex justify-content-end gap-2">
+
+                    <a asp-controller="RolesAndPermissions"
+                       asp-action="Index"
+                       class="btn btn-secondary">
+
+                        <i class="bi bi-x-circle me-1"></i>
+                        Cancel
+
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-primary">
+
+                        <i class="bi bi-person-plus me-1"></i>
+                        Create Role
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+     
+</div>
+
+                       
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const availableList =
+            document.getElementById("availablePermissions");
+
+        const selectedList =
+            document.getElementById("selectedPermissions");
+
+        const addButton =
+            document.getElementById("addPermissions");
+
+        const removeButton =
+            document.getElementById("removePermissions");
+
+        const permissionInputs =
+            document.getElementById("permissionInputs");
+
+        // Move selected permissions from left to right.
+        addButton.addEventListener("click", function () {
+
+            const selectedOptions =
+                Array.from(availableList.selectedOptions);
+
+            selectedOptions.forEach(function (option) {
+                selectedList.appendChild(option);
+                option.selected = false;
+            });
+
+            updatePermissionInputs();
+        });
+
+        // Move selected permissions from right to left.
+        removeButton.addEventListener("click", function () {
+
+            const selectedOptions =
+                Array.from(selectedList.selectedOptions);
+
+            selectedOptions.forEach(function (option) {
+                availableList.appendChild(option);
+                option.selected = false;
+            });
+
+            updatePermissionInputs();
+        });
+
+        // Create Permissions[0], Permissions[1], etc.
+        function updatePermissionInputs() {
+
+            permissionInputs.innerHTML = "";
+
+            Array.from(selectedList.options).forEach(
+                function (option, index) {
+
+                    const input = document.createElement("input");
+
+                    input.type = "hidden";
+                    input.name = `Permissions[${index}]`;
+                    input.value = option.value;
+
+                    permissionInputs.appendChild(input);
+                }
+            );
+        }
+
+    });
+</script>

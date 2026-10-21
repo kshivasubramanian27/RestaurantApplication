@@ -165,5 +165,48 @@ namespace RestaurantApplicationUI.Services
 
             return (true, null);
         }
+
+        public async Task<(bool success, string? error)> CreateRoleAsync(string accessToken, CreateUserRoleDTO model)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            model.NormalisedName = model.Name.ToUpper();
+
+            var response = await _httpClient.PostAsJsonAsync("api/UserRoles/AddRole", model);
+
+            try
+            { await ApiErrorHandler.EnsureSuccessAsync(response, "Unable to create the new user role."); }
+            catch (ApiRequestException exception) when (exception.StatusCode == HttpStatusCode.Conflict || exception.StatusCode == HttpStatusCode.BadRequest)
+            { return (false, exception.Message); }
+
+            return (true, null);
+        }
+
+        public async Task<EditUserRoleDTO> GetRoleDetailsAsync(string accessToken, Guid Id)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.GetAsync($"api/UserRoles/EditRole/{Id}");
+
+            await ApiErrorHandler.EnsureSuccessAsync(response, "Unable to retrieve Role details.");
+
+            var roleDetails = await response.Content.ReadFromJsonAsync<EditUserRoleDTO>();
+
+            return roleDetails ?? new EditUserRoleDTO();
+        }
+
+        public async Task<(bool success, string? error)> UpdatePermissionDetailsAsync(string accessToken, EditUserRoleDTO model)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.PutAsJsonAsync($"api/UserRoles/EditRole/{model.Id}", model);
+
+            try
+            { await ApiErrorHandler.EnsureSuccessAsync(response, "Unable to update the Role."); }
+            catch (ApiRequestException exception) when (exception.StatusCode == HttpStatusCode.Conflict || exception.StatusCode == HttpStatusCode.BadRequest)
+            { return (false, exception.Message); }
+
+            return (true, null);
+        }
     }
 }

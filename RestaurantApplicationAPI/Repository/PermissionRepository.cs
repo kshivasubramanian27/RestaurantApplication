@@ -3,6 +3,7 @@ using RestaurantApplicationAPI.DBContext;
 using RestaurantApplicationAPI.Models;
 using RestaurantApplicationAPI.RepositoryContracts;
 using RestaurantApplicationAPI.Utilities;
+using System.Security;
 
 namespace RestaurantApplicationAPI.Repository
 {
@@ -141,6 +142,21 @@ namespace RestaurantApplicationAPI.Repository
             catch (DbUpdateException)
             {
                 return ServiceResult<bool>.FailureResult("Failed to Delete permission", ServiceResultStatus.Error);
+            }
+        }
+
+        public async Task<ServiceResult<string>> CreatePermissionForRole(RolePermission rolePermission)
+        {
+            try
+            {
+                await _context.RolePermissions.AddAsync(rolePermission);
+                await _context.SaveChangesAsync();
+
+                return ServiceResult<string>.SuccessResult("Role Permission added sucessfully", ServiceResultStatus.Created);
+            }
+            catch (Exception exception)
+            {
+                return ServiceResult<string>.FailureResult(exception.ToString(), ServiceResultStatus.Error);
             }
         }
     }

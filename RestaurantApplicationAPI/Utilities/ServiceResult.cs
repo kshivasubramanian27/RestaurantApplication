@@ -10,13 +10,13 @@
 
         public ServiceResultStatus StatusCode { get; set; }
 
-        public static ServiceResult<T> SuccessResult(T data)
+        public static ServiceResult<T> SuccessResult(T data, ServiceResultStatus statusCode = ServiceResultStatus.Success)
         {
             return new ServiceResult<T>
             {
                 Success = true,
                 Data = data,
-                StatusCode = ServiceResultStatus.Success
+                StatusCode = statusCode
             };
         }
 

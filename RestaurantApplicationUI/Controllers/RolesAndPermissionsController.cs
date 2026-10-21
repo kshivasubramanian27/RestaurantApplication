@@ -113,5 +113,84 @@ namespace RestaurantApplicationUI.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpGet("AddRole")]
+        public async Task<IActionResult> AddRole()
+        {
+            var accessToken = User.FindFirst("access_token")?.Value;
+
+            if (string.IsNullOrWhiteSpace(accessToken))
+                return RedirectToAction("Login", "Account");
+
+            ViewBag.allPermissions = await _usersService.GetAllPermissionsAsync(accessToken);
+
+            return View();
+        }
+
+        [HttpPost("AddRole")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddRole(CreateUserRoleDTO model)
+        {
+            var accessToken = User.FindFirst("access_token")?.Value;
+
+            if (string.IsNullOrWhiteSpace(accessToken))
+                return RedirectToAction("Login", "Account");
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.CreatePermissionError = "Unable to create new Role.";
+                ViewBag.allPermissions = await _usersService.GetAllPermissionsAsync(accessToken);
+
+                return View("AddRole", model);
+            }
+
+            var (success, error) = await _usersService.CreateRoleAsync(accessToken, model);
+
+            if (!success)
+            {
+                ViewBag.CreateRoleError = error;
+
+                return View("AddRole", model);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet("EditRole/{id}")]
+        public async Task<IActionResult> EditRole(string id)
+        {
+            var accessToken = User.FindFirst("access_token")?.Value;
+
+            if (string.IsNullOrWhiteSpace(accessToken))
+                return RedirectToAction("Login", "Account");
+
+            var roleDetails = await _usersService.GetRoleDetailsAsync(accessToken, Guid.Parse(id));
+
+            ViewBag.allPermissions = await _usersService.GetAllPermissionsAsync(accessToken);
+
+            return View(roleDetails);
+        }
+
+        [HttpPost("EditRole/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditRole(string id, EditUserRoleDTO model)
+        {
+            var accessToken = User.FindFirst("access_token")?.Value;
+
+            if (string.IsNullOrWhiteSpace(accessToken))
+                return RedirectToAction("Login", "Account");
+
+            var (success, error) = await _usersService.UpdatePermissionDetailsAsync(accessToken, model);
+
+            if (!success)
+            {
+                ViewBag.EditPermissionErrorDetails = error;
+                ViewBag.allPermissions = await _usersService.GetAllPermissionsAsync(accessToken);
+
+                return View(model);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

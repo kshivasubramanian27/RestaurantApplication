@@ -8,6 +8,7 @@
         Forbidden,
         NotFound,
         Conflict,
-        Error
+        Error,
+        Created
     }
 }

@@ -39,6 +39,9 @@ namespace RestaurantApplicationAPI.Extensions
                         message = result.Error
                     }),
 
+                ServiceResultStatus.Created =>
+                    controller.StatusCode(StatusCodes.Status201Created, result.Data),
+
                 _ =>
                     controller.StatusCode(
                         StatusCodes.Status500InternalServerError,
