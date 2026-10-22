@@ -12,5 +12,7 @@ namespace RestaurantApplicationAPI.ServiceContracts
         public Task<ServiceResult<EditUserRoleDTO>> GetUserRoleDetailsAsync(string id);
 
         public Task<ServiceResult<EditUserRoleDTO>> UpdateRoleDetailsAsync(string id, EditUserRoleDTO userRole);
+
+        public Task<ServiceResult<string>> DeleteRoleAsync(string roleId, string currentUserId);
     }
 }

@@ -196,5 +196,43 @@ namespace RestaurantApplicationAPI.Services
 
             return ServiceResult<EditUserRoleDTO>.SuccessResult(userRole);
         }
+
+        public async Task<ServiceResult<string>> DeleteRoleAsync(string id, string currentUserRole)
+        {
+            if (string.IsNullOrWhiteSpace(currentUserRole))
+                return ServiceResult<string>.FailureResult("Unable to determine your current role.", ServiceResultStatus.Forbidden);
+
+            if (!Guid.TryParse(id, out var parsedRoleId))
+                return ServiceResult<string>.FailureResult("Invalid Role ID.", ServiceResultStatus.ValidationError);
+
+            var roleResult = await _userRolesRepository.GetRoleDetailsAsync(Guid.Parse(id));
+
+            if (!roleResult.Success)
+                return ServiceResult<string>.FailureResult(roleResult.Error!, roleResult.StatusCode);
+
+            var role = roleResult.Data;
+
+            if (role is null)
+                return ServiceResult<string>.FailureResult("Role not found.", ServiceResultStatus.NotFound);
+
+            if (string.Equals(currentUserRole, role.Name, StringComparison.OrdinalIgnoreCase))
+                return ServiceResult<string>.FailureResult("You cannot delete the role assigned to your own account.", ServiceResultStatus.Forbidden);
+
+            var currentUserRoleLevel = RoleHierarchy.RoleHierarchyDict.GetValueOrDefault(currentUserRole, 0);
+            var targetRoleLevel = RoleHierarchy.RoleHierarchyDict.GetValueOrDefault(role.Name ?? string.Empty, 0);
+
+            if (currentUserRoleLevel == 0 || targetRoleLevel == 0)
+                return ServiceResult<string>.FailureResult("The role hierarchy is not configured correctly.", ServiceResultStatus.Forbidden);
+
+            if (currentUserRoleLevel <= targetRoleLevel)
+                return ServiceResult<string>.FailureResult("You are not allowed to delete this role.", ServiceResultStatus.Forbidden);
+
+            var deleteResult = await _userRolesRepository.DeleteRoleAsync(role);
+
+            if (!deleteResult.Success)
+                return ServiceResult<string>.FailureResult(deleteResult.Error ?? "Failed to delete the role.", deleteResult.StatusCode);
+
+            return ServiceResult<string>.SuccessResult("Role deleted successfully.", ServiceResultStatus.Success);
+        }
     }
 }

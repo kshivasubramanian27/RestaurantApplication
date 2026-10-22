@@ -126,5 +126,42 @@ namespace RestaurantApplicationAPI.Repository
                 return ServiceResult<bool>.FailureResult("Failed to remove the permission assignment from the role.", ServiceResultStatus.Error);
             }
         }
+
+        public async Task<ServiceResult<bool>> DeleteRoleAsync(ApplicationRole role)
+        {
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+            try
+            {
+                var rolePermissions = await _dbContext.RolePermissions.Where(rp => rp.RoleId == role.Id).ToListAsync();
+                _dbContext.RolePermissions.RemoveRange(rolePermissions);
+
+                var userRoleAssignments = await _dbContext.UserRoles.Where(ur => ur.RoleId == role.Id).ToListAsync();
+                _dbContext.UserRoles.RemoveRange(userRoleAssignments);
+
+                await _dbContext.SaveChangesAsync();
+
+                var deleteResult = await _roleManager.DeleteAsync(role);
+
+                if (!deleteResult.Succeeded)
+                {
+                    await transaction.RollbackAsync();
+
+                    var errors = string.Join("; ", deleteResult.Errors.Select(e => e.Description));
+
+                    return ServiceResult<bool>.FailureResult($"Failed to delete the role: {errors}", ServiceResultStatus.Error);
+                }
+
+                await transaction.CommitAsync();
+
+                return ServiceResult<bool>.SuccessResult(true, ServiceResultStatus.Success);
+            }
+            catch (Exception exception)
+            {
+                await transaction.RollbackAsync();
+
+                return ServiceResult<bool>.FailureResult("An error occurred while deleting the role.", ServiceResultStatus.Error);
+            }
+        }
     }
 }

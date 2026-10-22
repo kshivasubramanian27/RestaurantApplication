@@ -208,5 +208,19 @@ namespace RestaurantApplicationUI.Services
 
             return (true, null);
         }
+
+        public async Task<(bool Success, string? Error)> DeleteRoleAsync(string accessToken, string roleId)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.DeleteAsync($"api/UserRoles/{roleId}");
+
+            try
+            { await ApiErrorHandler.EnsureSuccessAsync(response, "Unable to delete the role."); }
+            catch (ApiRequestException exception) when (exception.StatusCode == HttpStatusCode.Conflict || exception.StatusCode == HttpStatusCode.BadRequest)
+            { return (false, exception.Message); }
+
+            return (true, null);
+        }
     }
 }

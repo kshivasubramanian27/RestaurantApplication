@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using RestaurantApplicationAPI.DTO.Roles;
 using RestaurantApplicationAPI.Extensions;
 using RestaurantApplicationAPI.ServiceContracts;
+using System.Security.Claims;
 
 namespace RestaurantApplicationAPI.Controllers
 {
@@ -115,6 +116,22 @@ namespace RestaurantApplicationAPI.Controllers
                 return Forbid();
 
             var result = await _userRolesService.UpdateRoleDetailsAsync(id, editRoleDTO);
+
+            return result.ToActionResult(this);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteRole(string id)
+        {
+            if (!User.HasPermission("Role.Delete"))
+                return Forbid();
+
+            var currentUserRole = User.FindFirstValue(ClaimTypes.Role);
+
+            if (string.IsNullOrWhiteSpace(currentUserRole))
+                return Forbid();
+
+            var result = await _userRolesService.DeleteRoleAsync(id, currentUserRole);
 
             return result.ToActionResult(this);
         }

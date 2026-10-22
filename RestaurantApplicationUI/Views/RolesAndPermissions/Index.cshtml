@@ -1,4 +1,6 @@
-﻿@using RestaurantApplicationUI.DTO.Roles
+﻿@using System.Security.Claims
+@using RestaurantApplicationUI.DTO.Roles
+@using RestaurantApplicationUI.Utilities
 
 @{
     ViewData["Title"] = "Roles And Permissions";
@@ -6,6 +8,9 @@
 
     var allRoles = ViewBag.allRoles as IList<UserRolesDTO> ?? new List<UserRolesDTO>();
     var allPermissions = ViewBag.allPermissions as IList<UserPermissionsDTO> ?? new List<UserPermissionsDTO>();
+
+    var currentRole = User.FindFirst(ClaimTypes.Role)?.Value ?? "";
+    var currentRoleLevel = RoleHierarchy.RoleHierarchyDict.GetValueOrDefault(currentRole, 0);
 }
 
 <link href="~/BootstrapCSS/breadcrumbs.css" rel="stylesheet" />
@@ -39,6 +44,20 @@
         </div>
     }
 
+    @if (ViewBag.DeleteRoleErrorDetails != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show"
+             role="alert">
+            @ViewBag.DeleteRoleError
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close">
+            </button>
+        </div>
+    }
+
     <div class="justify-content align-items-center mb-4">
         <div>
             <h2 class="mb-1"></h2>
@@ -69,6 +88,10 @@
                     <tbody>
                         @foreach (var role in allRoles)
                         {
+                            var targetRoleLevel = RoleHierarchy.RoleHierarchyDict.GetValueOrDefault(role.RoleName, 0);
+                            var isSameRole = string.Equals(currentRole, role.RoleName, StringComparison.OrdinalIgnoreCase);
+                            var canDeleteRole = !isSameRole && targetRoleLevel > 0 && currentRoleLevel > targetRoleLevel;
+
                             <tr>
                                 <td>
                                     <strong>@role.RoleName</strong>
@@ -79,14 +102,26 @@
                                 </td>
 
                                 <td class="text-end">
+                                    <a asp-controller="RolesAndPermissions"
+                                       asp-action="EditRole"
+                                       asp-route-id="@role.Id"
+                                       class="btn btn-sm btn-outline-primary me-1"
+                                       title="Edit Role">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
 
-                                        <a asp-controller="RolesAndPermissions"
-                                            asp-action="EditRole"
-                                            asp-route-id="@role.Id"
-                                            class="btn btn-sm btn-outline-primary me-1">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
+                                    @if (canDeleteRole)
+                                    {
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                title="Delete Role"
+                                                onclick="openRoleDeleteModal(
+                                            '@role.Id',
+                                            '@role.RoleName')">
 
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    }
                                 </td>
                             </tr>
                         }
@@ -210,6 +245,70 @@
     </div>
 </div>
 
+<div class="modal fade"
+     id="deleteUserRole"
+     tabindex="-1"
+     aria-labelledby="deleteRoleModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteRoleModalLabel">
+                    Confirm Role Deletion
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>
+                    Are you sure you want to permanently delete
+                    the role <strong id="roleName"></strong>?
+                </p>
+
+                <div class="alert alert-warning" role="alert">
+                    <strong>Warning:</strong>
+                    This action cannot be undone. Users associated
+                    with this role must be manually reassigned to
+                    another role before deletion.
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cancel
+                </button>
+
+                <form asp-controller="RolesAndPermissions"
+                      asp-action="DeleteRole"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="id"
+                           id="deleteRoleId" />
+
+                    <button type="submit"
+                            class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i>
+                        Delete Permanently
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <script>
 
     function openPermissionDeleteModal(permissionId, permissionName) {
@@ -219,6 +318,17 @@
         document.getElementById("confirmPermissionDeleteButton").href = "/RolesAndPermissions/DeletePermission/" + permissionId;
 
         const modal = new bootstrap.Modal(document.getElementById("deleteUserPermission"));
+
+        modal.show();
+    }
+
+    function openRoleDeleteModal(roleId, roleName) {
+
+        document.getElementById("roleName").textContent = roleName;
+
+        document.getElementById("deleteRoleId").value = roleId;
+
+        const modal = new bootstrap.Modal(document.getElementById("deleteUserRole"));
 
         modal.show();
     }

@@ -19,5 +19,7 @@ namespace RestaurantApplicationAPI.RepositoryContracts
         public Task<ServiceResult<ApplicationRole>> UpdateRoleAsync(ApplicationRole role);
 
         public Task<ServiceResult<bool>> DeleteRolePermissionAsync(RolePermission rolePermission);
+
+        public Task<ServiceResult<bool>> DeleteRoleAsync(ApplicationRole role);
     }
 }

@@ -32,5 +32,7 @@ namespace RestaurantApplicationUI.ServiceContracts
         Task<EditUserRoleDTO> GetRoleDetailsAsync(string accessToken, Guid Id);
 
         Task<(bool success, string? error)> UpdatePermissionDetailsAsync(string accessToken, EditUserRoleDTO model);
+
+        Task<(bool Success, string? Error)> DeleteRoleAsync(string accessToken, string roleId);
     }
 }

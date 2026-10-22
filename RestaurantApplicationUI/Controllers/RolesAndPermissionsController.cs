@@ -192,5 +192,26 @@ namespace RestaurantApplicationUI.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpPost("DeleteRole")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteRole(string id)
+        {
+            var accessToken = User.FindFirst("access_token")?.Value;
+
+            if (string.IsNullOrWhiteSpace(accessToken))
+                return RedirectToAction("Login", "Account");
+
+            var (success, error) = await _usersService.DeleteRoleAsync(accessToken, id);
+
+            if (!success)
+            {
+                ViewBag.DeleteRoleErrorDetails = error ?? "Failed to delete the role.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
