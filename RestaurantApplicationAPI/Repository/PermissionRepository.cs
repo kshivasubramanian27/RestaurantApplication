@@ -3,7 +3,6 @@ using RestaurantApplicationAPI.DBContext;
 using RestaurantApplicationAPI.Models;
 using RestaurantApplicationAPI.RepositoryContracts;
 using RestaurantApplicationAPI.Utilities;
-using System.Security;
 
 namespace RestaurantApplicationAPI.Repository
 {

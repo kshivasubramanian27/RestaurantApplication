@@ -1,6 +1,5 @@
 ﻿using RestaurantApplicationAPI.DTO.Roles;
 using RestaurantApplicationAPI.Models;
-using RestaurantApplicationAPI.Repository;
 using RestaurantApplicationAPI.RepositoryContracts;
 using RestaurantApplicationAPI.ServiceContracts;
 using RestaurantApplicationAPI.Utilities;
@@ -70,11 +69,11 @@ namespace RestaurantApplicationAPI.Services
             if (permission.StatusCode == ServiceResultStatus.NotFound)
                 return ServiceResult<EditUserPermissionDTO>.FailureResult("Permission doesn't exist with this ID", ServiceResultStatus.NotFound);
 
-            if (!permission.Success || permission.Data == null)
-                return ServiceResult<EditUserPermissionDTO>.FailureResult("Permission doesn't exist with this ID", ServiceResultStatus.Conflict);
-
             if (permission.StatusCode == ServiceResultStatus.Error)
                 return ServiceResult<EditUserPermissionDTO>.FailureResult("Failed to get the permission data", ServiceResultStatus.Error);
+
+            if (!permission.Success || permission.Data == null)
+                return ServiceResult<EditUserPermissionDTO>.FailureResult("Permission doesn't exist with this ID", ServiceResultStatus.Conflict);
 
             EditUserPermissionDTO permissionDTO = new()
             {
@@ -93,11 +92,11 @@ namespace RestaurantApplicationAPI.Services
             if (permission.StatusCode == ServiceResultStatus.NotFound)
                 return ServiceResult<EditUserPermissionDTO>.FailureResult("Permission doesn't exist", ServiceResultStatus.NotFound);
 
-            if (!permission.Success || permission.Data == null)
-                return ServiceResult<EditUserPermissionDTO>.FailureResult("Permission doesn't exist", ServiceResultStatus.Conflict);
-
             if (permission.StatusCode == ServiceResultStatus.Error)
                 return ServiceResult<EditUserPermissionDTO>.FailureResult("Failed to get the permission data", ServiceResultStatus.Error);
+
+            if (!permission.Success || permission.Data == null)
+                return ServiceResult<EditUserPermissionDTO>.FailureResult("Permission doesn't exist", ServiceResultStatus.Conflict);
 
             EditUserPermissionDTO permissionDTO = new()
             {
